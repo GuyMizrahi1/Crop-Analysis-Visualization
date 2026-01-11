@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Visualization 5: LNC Status Classification</title>
+    
+<style>
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+        color: #333;
+    }
+    h1 {
+        text-align: center;
+        color: #1b5e20;
+        margin-bottom: 10px;
+        font-size: 2.2em;
+    }
+    h2 {
+        color: white;
+        margin-top: 50px;
+        padding: 15px;
+        background: linear-gradient(90deg, #228B22, #32CD32);
+        border-radius: 5px;
+    }
+    h3 {
+        color: #1b5e20;
+        margin-top: 30px;
+        border-left: 4px solid #228B22;
+        padding-left: 15px;
+    }
+    .subtitle {
+        text-align: center;
+        color: #666;
+        font-size: 1.1em;
+        margin-bottom: 30px;
+    }
+    .analysis-section {
+        background: white;
+        padding: 20px;
+        margin: 20px 0;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .intro-box {
+        background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+        border: 2px solid #4CAF50;
+        padding: 20px;
+        border-radius: 8px;
+        margin: 20px 0;
+    }
+    .discovery-box {
+        background: linear-gradient(135deg, #c8e6c9, #a5d6a7);
+        border: 3px solid #2E7D32;
+        padding: 25px;
+        border-radius: 10px;
+        margin: 25px 0;
+    }
+    .discovery-box h3 {
+        color: #1b5e20;
+        margin-top: 0;
+        border: none;
+        padding-left: 0;
+    }
+    .flow-arrow {
+        text-align: center;
+        font-size: 40px;
+        color: #228B22;
+        margin: 30px 0;
+    }
+    .methodology {
+        background: #e8f4fd;
+        border-left: 4px solid #1f77b4;
+        padding: 15px 20px;
+        margin-top: 15px;
+        border-radius: 0 8px 8px 0;
+    }
+    .methodology h4 {
+        margin: 0 0 10px 0;
+        color: #333;
+    }
+    .key-observations {
+        background: #f8f9fa;
+        border-left: 4px solid #2ca02c;
+        padding: 15px 20px;
+        margin-top: 15px;
+        border-radius: 0 8px 8px 0;
+    }
+    .key-observations h4 {
+        margin: 0 0 10px 0;
+        color: #333;
+    }
+    .key-observations ul {
+        margin: 0;
+        padding-left: 20px;
+    }
+    .key-observations li {
+        margin-bottom: 8px;
+        line-height: 1.5;
+    }
+    .warning-box {
+        background: #fff3cd;
+        border-left: 4px solid #ffc107;
+        padding: 15px 20px;
+        margin-top: 15px;
+        border-radius: 0 8px 8px 0;
+    }
+    table {
+        border-collapse: collapse;
+        margin: 15px auto;
+    }
+    th, td {
+        border: 1px solid #ddd;
+        padding: 8px 12px;
+        text-align: left;
+    }
+    th {
+        background: linear-gradient(180deg, #e8f5e9, #c8e6c9);
+        color: #1b5e20;
+    }
+    .treatment-table th {
+        background: linear-gradient(180deg, #e8f5e9, #c8e6c9);
+    }
+    .timestamp {
+        text-align: center;
+        color: #666;
+        margin-top: 40px;
+        font-size: 0.9em;
+    }
+</style>
+
+</head>
+<body>
+    <h1>LNC Status Classification</h1>
+    <p class="subtitle">Leaf Nitrogen Content assessment using UC Davis thresholds</p>
+
+    <div class="intro-box">
+        <h3 style="margin-top: 0; border: none; padding-left: 0;">Understanding LNC Classification</h3>
+        <p><strong>Leaf Nitrogen Content (LNC)</strong> is the standard measure for assessing plant nitrogen status.
+        The University of California, Davis has established reference thresholds for citrus based on
+        extensive research and field trials.</p>
+
+        <p>These thresholds vary seasonally due to:</p>
+        <ul>
+            <li><strong>Dilution effect:</strong> Rapid leaf growth in spring dilutes nitrogen concentration</li>
+            <li><strong>Concentration effect:</strong> Slower growth in winter concentrates nitrogen</li>
+            <li><strong>Phenological timing:</strong> Nitrogen demand varies with growth stages</li>
+        </ul>
+    </div>
+
+    <h2>5.1 UC Davis Thresholds</h2>
+
+    <div class="analysis-section">
+        <p>The following thresholds are based on October reference values (when seasonal variation is minimal):</p>
+        
+    <table class="treatment-table" style="width: 80%; margin: 20px auto;">
+        <tr>
+            <th>LNC Category</th>
+            <th>October Threshold</th>
+            <th>Description</th>
+            <th>Agronomic Implication</th>
+        </tr>
+        <tr style="background: rgba(30, 144, 255, 0.3);">
+            <td style="font-weight: bold; color: #1E90FF;">Deficient</td>
+            <td>&lt; 2.64%</td>
+            <td>Severe nitrogen deficiency</td>
+            <td>Immediate fertilization required</td>
+        </tr>
+        <tr style="background: rgba(135, 206, 250, 0.3);">
+            <td style="font-weight: bold; color: #87CEEB;">Low</td>
+            <td>2.64 - 2.88%</td>
+            <td>Suboptimal nitrogen levels</td>
+            <td>Consider supplemental fertilization</td>
+        </tr>
+        <tr style="background: rgba(78, 205, 196, 0.3);">
+            <td style="font-weight: bold; color: #4ECDC4;">Optimum</td>
+            <td>2.88 - 3.24%</td>
+            <td>Ideal range for citrus</td>
+            <td>Maintain current program</td>
+        </tr>
+        <tr style="background: rgba(255, 165, 0, 0.3);">
+            <td style="font-weight: bold; color: #FFA500;">High</td>
+            <td>3.24 - 3.48%</td>
+            <td>Above optimal</td>
+            <td>Monitor, may reduce fertilization</td>
+        </tr>
+        <tr style="background: rgba(255, 107, 107, 0.3);">
+            <td style="font-weight: bold; color: #FF6B6B;">Excess</td>
+            <td>&gt; 3.48%</td>
+            <td>Excessive nitrogen</td>
+            <td>Reduce fertilization to avoid waste</td>
+        </tr>
+    </table>
+    
+
+        <div class="methodology">
+            <h4>Color Coding Rationale</h4>
+            <ul>
+                <li><span style="color: #1E90FF; font-weight: bold;">Blue = Deficient/Low</span> - Cold colors indicate deficiency, signaling need for action</li>
+                <li><span style="color: #4ECDC4; font-weight: bold;">Teal = Optimum</span> - Calm, balanced color for ideal status</li>
+                <li><span style="color: #FFA500; font-weight: bold;">Orange = High</span> - Warm colors indicate excess</li>
+                <li><span style="color: #FF6B6B; font-weight: bold;">Red = Excess</span> - Alert color for over-fertilization</li>
+            </ul>
+        </div>
+    </div>
+
+    <h3>Seasonal Adjustment Factors</h3>
+
+    <div class="analysis-section">
+        <p>Thresholds are adjusted monthly based on seasonal nitrogen dynamics:</p>
+        <table class="treatment-table" style="width: 100%; margin: 20px auto;"><tr><th>Month</th><th>Jan</th><th>Feb</th><th>Mar</th><th>Apr</th><th>May</th><th>Jun</th><th>Jul</th><th>Aug</th><th>Sep</th><th>Oct</th><th>Nov</th><th>Dec</th></tr><tr><td style="font-weight: bold;">Factor</td><td style="background: rgba(255, 107, 107, 0.3);">1.125</td><td style="background: rgba(255, 107, 107, 0.3);">1.081</td><td style="background: rgba(78, 205, 196, 0.3);">1.024</td><td style="background: rgba(78, 205, 196, 0.3);">0.993</td><td style="background: rgba(135, 206, 250, 0.3);">0.910</td><td style="background: rgba(135, 206, 250, 0.3);">0.923</td><td style="background: rgba(78, 205, 196, 0.3);">0.973</td><td style="background: rgba(78, 205, 196, 0.3);">1.024</td><td style="background: rgba(78, 205, 196, 0.3);">1.024</td><td style="background: rgba(78, 205, 196, 0.3);">1.000</td><td style="background: rgba(255, 107, 107, 0.3);">1.088</td><td style="background: rgba(255, 107, 107, 0.3);">1.125</td></tr><tr><td style="font-weight: bold;">Optimum Low</td><td>3.24%</td><td>3.11%</td><td>2.95%</td><td>2.86%</td><td>2.62%</td><td>2.66%</td><td>2.80%</td><td>2.95%</td><td>2.95%</td><td>2.88%</td><td>3.13%</td><td>3.24%</td></tr><tr><td style="font-weight: bold;">Optimum High</td><td>3.65%</td><td>3.50%</td><td>3.32%</td><td>3.22%</td><td>2.95%</td><td>2.99%</td><td>3.15%</td><td>3.32%</td><td>3.32%</td><td>3.24%</td><td>3.53%</td><td>3.65%</td></tr></table>
+
+        <div class="key-observations">
+            <h4>Seasonal Pattern</h4>
+            <ul>
+                <li><strong>Winter (Dec-Feb):</strong> Factors ~1.08-1.12 (higher thresholds)</li>
+                <li><strong>Spring (Mar-May):</strong> Factors ~0.91-1.02 (lower thresholds, especially May)</li>
+                <li><strong>Summer (Jun-Aug):</strong> Factors ~0.92-1.02 (variable)</li>
+                <li><strong>Fall (Sep-Nov):</strong> Factors ~1.00-1.09 (returning to baseline)</li>
+            </ul>
+        </div>
+    </div>
+
+    <h2>5.2 LNC Status Classification</h2>
+
+    <div class="analysis-section">
+        <p>The following visualization shows how each treatment group's nitrogen levels compare
+        against the seasonally-adjusted UC Davis thresholds:</p>
+        <div>                        <script type="text/javascript">window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
+        <script charset="utf-8" src="https://cdn.plot.ly/plotly-3.3.0.min.js" integrity="sha256-bO3dS6yCpk9aK4gUpNELtCiDeSYvGYnK7jFI58NQnHI=" crossorigin="anonymous"></script>                <div id="aba086d5-10bd-46e1-a7bf-caa1e26fbab5" class="plotly-graph-div" style="height:700px; width:100%;"></div>            <script type="text/javascript">                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("aba086d5-10bd-46e1-a7bf-caa1e26fbab5")) {                    Plotly.newPlot(                        "aba086d5-10bd-46e1-a7bf-caa1e26fbab5",                        [{"hoverinfo":"skip","line":{"shape":"spline","width":0},"mode":"lines","name":"_floor","showlegend":false,"x":["2022-07-15T00:00:00","2022-08-15T00:00:00","2022-09-15T00:00:00","2022-10-15T00:00:00","2022-11-15T00:00:00","2022-12-15T00:00:00","2023-01-15T00:00:00","2023-02-15T00:00:00","2023-03-15T00:00:00","2023-04-15T00:00:00","2023-05-15T00:00:00","2023-06-15T00:00:00","2023-07-15T00:00:00","2023-08-15T00:00:00","2023-09-15T00:00:00","2023-10-15T00:00:00","2023-11-15T00:00:00","2023-12-15T00:00:00","2024-01-15T00:00:00","2024-02-15T00:00:00","2024-03-15T00:00:00","2024-04-15T00:00:00","2024-05-15T00:00:00","2024-06-15T00:00:00","2024-07-15T00:00:00","2024-08-15T00:00:00","2024-09-15T00:00:00"],"y":[1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5],"type":"scatter"},{"fill":"tonexty","fillcolor":"rgba(30, 144, 255, 0.25)","hovertemplate":"Deficient\u002fLow boundary: %{y:.2f}%\u003cextra\u003e\u003c\u002fextra\u003e","line":{"color":"rgba(60, 60, 60, 0.7)","shape":"spline","width":1.5},"mode":"lines","name":"Deficient (\u003c 2.64%)","x":["2022-07-15T00:00:00","2022-08-15T00:00:00","2022-09-15T00:00:00","2022-10-15T00:00:00","2022-11-15T00:00:00","2022-12-15T00:00:00","2023-01-15T00:00:00","2023-02-15T00:00:00","2023-03-15T00:00:00","2023-04-15T00:00:00","2023-05-15T00:00:00","2023-06-15T00:00:00","2023-07-15T00:00:00","2023-08-15T00:00:00","2023-09-15T00:00:00","2023-10-15T00:00:00","2023-11-15T00:00:00","2023-12-15T00:00:00","2024-01-15T00:00:00","2024-02-15T00:00:00","2024-03-15T00:00:00","2024-04-15T00:00:00","2024-05-15T00:00:00","2024-06-15T00:00:00","2024-07-15T00:00:00","2024-08-15T00:00:00","2024-09-15T00:00:00"],"y":[2.56872,2.70336,2.70336,2.64,2.87232,2.97,2.97,2.85384,2.70336,2.6215200000000003,2.4024,2.43672,2.56872,2.70336,2.70336,2.64,2.87232,2.97,2.97,2.85384,2.70336,2.6215200000000003,2.4024,2.43672,2.56872,2.70336,2.70336],"type":"scatter"},{"fill":"tonexty","fillcolor":"rgba(135, 206, 250, 0.25)","hovertemplate":"Low\u002fOptimum boundary: %{y:.2f}%\u003cextra\u003e\u003c\u002fextra\u003e","line":{"color":"rgba(60, 60, 60, 0.7)","shape":"spline","width":1.5},"mode":"lines","name":"Low (2.64-2.88%)","x":["2022-07-15T00:00:00","2022-08-15T00:00:00","2022-09-15T00:00:00","2022-10-15T00:00:00","2022-11-15T00:00:00","2022-12-15T00:00:00","2023-01-15T00:00:00","2023-02-15T00:00:00","2023-03-15T00:00:00","2023-04-15T00:00:00","2023-05-15T00:00:00","2023-06-15T00:00:00","2023-07-15T00:00:00","2023-08-15T00:00:00","2023-09-15T00:00:00","2023-10-15T00:00:00","2023-11-15T00:00:00","2023-12-15T00:00:00","2024-01-15T00:00:00","2024-02-15T00:00:00","2024-03-15T00:00:00","2024-04-15T00:00:00","2024-05-15T00:00:00","2024-06-15T00:00:00","2024-07-15T00:00:00","2024-08-15T00:00:00","2024-09-15T00:00:00"],"y":[2.80224,2.9491199999999997,2.9491199999999997,2.88,3.1334400000000002,3.2399999999999998,3.2399999999999998,3.1132799999999996,2.9491199999999997,2.8598399999999997,2.6208,2.65824,2.80224,2.9491199999999997,2.9491199999999997,2.88,3.1334400000000002,3.2399999999999998,3.2399999999999998,3.1132799999999996,2.9491199999999997,2.8598399999999997,2.6208,2.65824,2.80224,2.9491199999999997,2.9491199999999997],"type":"scatter"},{"fill":"tonexty","fillcolor":"rgba(78, 205, 196, 0.25)","hovertemplate":"Optimum\u002fHigh boundary: %{y:.2f}%\u003cextra\u003e\u003c\u002fextra\u003e","line":{"color":"rgba(60, 60, 60, 0.7)","shape":"spline","width":1.5},"mode":"lines","name":"Optimum (2.88-3.24%)","x":["2022-07-15T00:00:00","2022-08-15T00:00:00","2022-09-15T00:00:00","2022-10-15T00:00:00","2022-11-15T00:00:00","2022-12-15T00:00:00","2023-01-15T00:00:00","2023-02-15T00:00:00","2023-03-15T00:00:00","2023-04-15T00:00:00","2023-05-15T00:00:00","2023-06-15T00:00:00","2023-07-15T00:00:00","2023-08-15T00:00:00","2023-09-15T00:00:00","2023-10-15T00:00:00","2023-11-15T00:00:00","2023-12-15T00:00:00","2024-01-15T00:00:00","2024-02-15T00:00:00","2024-03-15T00:00:00","2024-04-15T00:00:00","2024-05-15T00:00:00","2024-06-15T00:00:00","2024-07-15T00:00:00","2024-08-15T00:00:00","2024-09-15T00:00:00"],"y":[3.15252,3.3177600000000003,3.3177600000000003,3.24,3.5251200000000007,3.6450000000000005,3.6450000000000005,3.50244,3.3177600000000003,3.2173200000000004,2.9484000000000004,2.9905200000000005,3.15252,3.3177600000000003,3.3177600000000003,3.24,3.5251200000000007,3.6450000000000005,3.6450000000000005,3.50244,3.3177600000000003,3.2173200000000004,2.9484000000000004,2.9905200000000005,3.15252,3.3177600000000003,3.3177600000000003],"type":"scatter"},{"fill":"tonexty","fillcolor":"rgba(255, 165, 0, 0.25)","hovertemplate":"High\u002fExcess boundary: %{y:.2f}%\u003cextra\u003e\u003c\u002fextra\u003e","line":{"color":"rgba(60, 60, 60, 0.7)","shape":"spline","width":1.5},"mode":"lines","name":"High (3.24-3.48%)","x":["2022-07-15T00:00:00","2022-08-15T00:00:00","2022-09-15T00:00:00","2022-10-15T00:00:00","2022-11-15T00:00:00","2022-12-15T00:00:00","2023-01-15T00:00:00","2023-02-15T00:00:00","2023-03-15T00:00:00","2023-04-15T00:00:00","2023-05-15T00:00:00","2023-06-15T00:00:00","2023-07-15T00:00:00","2023-08-15T00:00:00","2023-09-15T00:00:00","2023-10-15T00:00:00","2023-11-15T00:00:00","2023-12-15T00:00:00","2024-01-15T00:00:00","2024-02-15T00:00:00","2024-03-15T00:00:00","2024-04-15T00:00:00","2024-05-15T00:00:00","2024-06-15T00:00:00","2024-07-15T00:00:00","2024-08-15T00:00:00","2024-09-15T00:00:00"],"y":[3.38604,3.56352,3.56352,3.48,3.7862400000000003,3.915,3.915,3.7618799999999997,3.56352,3.45564,3.1668000000000003,3.21204,3.38604,3.56352,3.56352,3.48,3.7862400000000003,3.915,3.915,3.7618799999999997,3.56352,3.45564,3.1668000000000003,3.21204,3.38604,3.56352,3.56352],"type":"scatter"},{"fill":"tonexty","fillcolor":"rgba(255, 107, 107, 0.25)","hoverinfo":"skip","line":{"shape":"spline","width":0},"mode":"lines","name":"Excess (\u003e 3.48%)","showlegend":true,"x":["2022-07-15T00:00:00","2022-08-15T00:00:00","2022-09-15T00:00:00","2022-10-15T00:00:00","2022-11-15T00:00:00","2022-12-15T00:00:00","2023-01-15T00:00:00","2023-02-15T00:00:00","2023-03-15T00:00:00","2023-04-15T00:00:00","2023-05-15T00:00:00","2023-06-15T00:00:00","2023-07-15T00:00:00","2023-08-15T00:00:00","2023-09-15T00:00:00","2023-10-15T00:00:00","2023-11-15T00:00:00","2023-12-15T00:00:00","2024-01-15T00:00:00","2024-02-15T00:00:00","2024-03-15T00:00:00","2024-04-15T00:00:00","2024-05-15T00:00:00","2024-06-15T00:00:00","2024-07-15T00:00:00","2024-08-15T00:00:00","2024-09-15T00:00:00"],"y":[4.2,4.2,4.2,4.2,4.2,4.2,4.2,4.2,4.2,4.2,4.2,4.2,4.2,4.2,4.2,4.2,4.2,4.2,4.2,4.2,4.2,4.2,4.2,4.2,4.2,4.2,4.2],"type":"scatter"},{"hovertemplate":"N10\u003cbr\u003e%{x|%B %Y}\u003cbr\u003eN: %{y:.2f}%\u003cextra\u003e\u003c\u002fextra\u003e","line":{"color":"#1f77b4","width":2},"marker":{"size":6},"mode":"lines+markers","name":"N10","x":["2022-08-15T00:00:00.000000000","2022-09-15T00:00:00.000000000","2022-10-15T00:00:00.000000000","2022-11-15T00:00:00.000000000","2022-12-15T00:00:00.000000000","2023-01-15T00:00:00.000000000","2023-02-15T00:00:00.000000000","2023-03-15T00:00:00.000000000","2023-05-15T00:00:00.000000000","2023-06-15T00:00:00.000000000","2023-07-15T00:00:00.000000000","2023-08-15T00:00:00.000000000","2023-09-15T00:00:00.000000000","2023-10-15T00:00:00.000000000","2023-11-15T00:00:00.000000000","2023-12-15T00:00:00.000000000","2024-01-15T00:00:00.000000000","2024-02-15T00:00:00.000000000","2024-03-15T00:00:00.000000000","2024-04-15T00:00:00.000000000","2024-05-15T00:00:00.000000000","2024-07-15T00:00:00.000000000","2024-08-15T00:00:00.000000000"],"y":{"dtype":"f8","bdata":"rveNOJg8BUB2x3Yc47sFQIhfOOW7ZwRANni4wO\u002fuBkAju\u002f7FkIEGQIfi9D5FMQZAmZVDE7fcB0C6UI2LQcwFQGI0kFUQ9\u002fs\u002fhMtqDCg8AEBrZDccGNkDQPVezKECTwRA6tQjvHrGA0C9W7Mj6Z0CQBLHV6BeRARAY+RawugYBkCLgQiYseUHQLr7iJTtqARAbihDEwqOBkCApvDhVDMEQKrQlQ2kEARAOFoi7c2CBkCwtag\u002fEcUFQA=="},"type":"scatter"},{"hovertemplate":"N40\u003cbr\u003e%{x|%B %Y}\u003cbr\u003eN: %{y:.2f}%\u003cextra\u003e\u003c\u002fextra\u003e","line":{"color":"#17becf","width":2},"marker":{"size":6},"mode":"lines+markers","name":"N40","x":["2022-08-15T00:00:00.000000000","2022-09-15T00:00:00.000000000","2022-10-15T00:00:00.000000000","2022-11-15T00:00:00.000000000","2022-12-15T00:00:00.000000000","2023-01-15T00:00:00.000000000","2023-02-15T00:00:00.000000000","2023-03-15T00:00:00.000000000","2023-05-15T00:00:00.000000000","2023-06-15T00:00:00.000000000","2023-07-15T00:00:00.000000000","2023-08-15T00:00:00.000000000","2023-09-15T00:00:00.000000000","2023-10-15T00:00:00.000000000","2023-11-15T00:00:00.000000000","2023-12-15T00:00:00.000000000","2024-01-15T00:00:00.000000000","2024-02-15T00:00:00.000000000","2024-03-15T00:00:00.000000000","2024-04-15T00:00:00.000000000","2024-05-15T00:00:00.000000000","2024-07-15T00:00:00.000000000","2024-08-15T00:00:00.000000000"],"y":{"dtype":"f8","bdata":"+iVwVAeSCUCCzfJLelMKQLBA+d2bqglAmozTgJDqDEDgQS1LxXsMQFI4rfHLwwpA1Q5b+nnbCkBY9P6PmM8HQNTR65DadABAXZ9UCsL8AkDAF7uSyv0GQJZD41omgwhAlUZo2nCcB0CYa9ctUhEGQH3Ai1ee3AdAGvE2S+0DCkDoN+icHJMKQDJoExcW0gZAzAs64dgwBkDgN5kRzigFQMQluL8HYwdAqLXQlPYzCED4+67pR8YHQA=="},"type":"scatter"},{"hovertemplate":"N60\u003cbr\u003e%{x|%B %Y}\u003cbr\u003eN: %{y:.2f}%\u003cextra\u003e\u003c\u002fextra\u003e","line":{"color":"#2ca02c","width":2},"marker":{"size":6},"mode":"lines+markers","name":"N60","x":["2022-08-15T00:00:00.000000000","2022-09-15T00:00:00.000000000","2022-10-15T00:00:00.000000000","2022-11-15T00:00:00.000000000","2022-12-15T00:00:00.000000000","2023-01-15T00:00:00.000000000","2023-02-15T00:00:00.000000000","2023-03-15T00:00:00.000000000","2023-05-15T00:00:00.000000000","2023-06-15T00:00:00.000000000","2023-07-15T00:00:00.000000000","2023-08-15T00:00:00.000000000","2023-09-15T00:00:00.000000000","2023-10-15T00:00:00.000000000","2023-11-15T00:00:00.000000000","2023-12-15T00:00:00.000000000","2024-01-15T00:00:00.000000000","2024-02-15T00:00:00.000000000","2024-03-15T00:00:00.000000000","2024-04-15T00:00:00.000000000","2024-05-15T00:00:00.000000000","2024-07-15T00:00:00.000000000","2024-08-15T00:00:00.000000000"],"y":{"dtype":"f8","bdata":"m9ncCPEcCUDjLuhK\u002ffAJQENYqf9EpQlAfQfP+KDuDEASBG+Bqm4LQHAnxdXf7ApAHhegMoRADUAa+n1lTF4KQPuMme3eswJAzOafk9mMBEATDHioIo8HQH0qOIbJLghAUK01eKksCUBbDA0qqk8HQIaQ7RFQSAhAwPzAyG5IC0De8a1o+KkLQJ4qv9ZFOwlAXQiBvOO4CEBVZSh0MA4GQGK7gW4kKQlAxkxNUMygB0BGFV9InsgIQA=="},"type":"scatter"},{"hovertemplate":"N100\u003cbr\u003e%{x|%B %Y}\u003cbr\u003eN: %{y:.2f}%\u003cextra\u003e\u003c\u002fextra\u003e","line":{"color":"#ff7f0e","width":2},"marker":{"size":6},"mode":"lines+markers","name":"N100","x":["2022-08-15T00:00:00.000000000","2022-09-15T00:00:00.000000000","2022-10-15T00:00:00.000000000","2022-11-15T00:00:00.000000000","2022-12-15T00:00:00.000000000","2023-01-15T00:00:00.000000000","2023-02-15T00:00:00.000000000","2023-03-15T00:00:00.000000000","2023-05-15T00:00:00.000000000","2023-06-15T00:00:00.000000000","2023-07-15T00:00:00.000000000","2023-08-15T00:00:00.000000000","2023-09-15T00:00:00.000000000","2023-10-15T00:00:00.000000000","2023-11-15T00:00:00.000000000","2023-12-15T00:00:00.000000000","2024-01-15T00:00:00.000000000","2024-02-15T00:00:00.000000000","2024-03-15T00:00:00.000000000","2024-04-15T00:00:00.000000000","2024-05-15T00:00:00.000000000","2024-07-15T00:00:00.000000000","2024-08-15T00:00:00.000000000"],"y":{"dtype":"f8","bdata":"GH36eVcDC0DCF2N735EJQL3DkWOuFApAlRO4DNstDkDGMktvtqQMQBOhyjJYSAtA8mMcoIfcDEAVIhnhHEMLQGAw5qcdUQJA6UNwgJXgBUDiXPrujVMHQEYfqvitMglA\u002fy9GQIc\u002fCUA2s80ZMlYIQK0\u002f0odvsApA3vtMXjy4C0Drs8DDEkQNQHvq8s+HpAlAzeEbujZZB0BCa7v\u002frdYGQBLVwBBJBwhABBFP\u002fR8NB0AOX3D5\u002flsIQA=="},"type":"scatter"},{"hovertemplate":"N150\u003cbr\u003e%{x|%B %Y}\u003cbr\u003eN: %{y:.2f}%\u003cextra\u003e\u003c\u002fextra\u003e","line":{"color":"#d62728","width":2},"marker":{"size":6},"mode":"lines+markers","name":"N150","x":["2022-08-15T00:00:00.000000000","2022-09-15T00:00:00.000000000","2022-10-15T00:00:00.000000000","2022-11-15T00:00:00.000000000","2022-12-15T00:00:00.000000000","2023-01-15T00:00:00.000000000","2023-02-15T00:00:00.000000000","2023-03-15T00:00:00.000000000","2023-05-15T00:00:00.000000000","2023-06-15T00:00:00.000000000","2023-07-15T00:00:00.000000000","2023-08-15T00:00:00.000000000","2023-09-15T00:00:00.000000000","2023-10-15T00:00:00.000000000","2023-11-15T00:00:00.000000000","2023-12-15T00:00:00.000000000","2024-01-15T00:00:00.000000000","2024-02-15T00:00:00.000000000","2024-03-15T00:00:00.000000000","2024-04-15T00:00:00.000000000","2024-05-15T00:00:00.000000000","2024-07-15T00:00:00.000000000","2024-08-15T00:00:00.000000000"],"y":{"dtype":"f8","bdata":"BeaTpHiaCkD0PrqpTzwJQCiXKhRs3QpAIwrXfCIJD0BFiO\u002faS2YMQKp6ioquewxAQgCsv7\u002fbDEBeBMVeBZQJQCgAiuEXvQNA2m7YzGH3BUAb9jhzwEkHQE439DHNtwhAs3d5dOyjCEAuw6suJZAIQN15FWimWQlALcrmwH\u002fkDEAGiLNnG1cMQE6CfDpkzwhAYtuxRNI8B0ANOYdVvPwGQKCpeY9SzghArryID3V7CEBSjvwpiKAJQA=="},"type":"scatter"}],                        {"template":{"data":{"histogram2dcontour":[{"type":"histogram2dcontour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"choropleth":[{"type":"choropleth","colorbar":{"outlinewidth":0,"ticks":""}}],"histogram2d":[{"type":"histogram2d","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"heatmap":[{"type":"heatmap","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"contourcarpet":[{"type":"contourcarpet","colorbar":{"outlinewidth":0,"ticks":""}}],"contour":[{"type":"contour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"surface":[{"type":"surface","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"mesh3d":[{"type":"mesh3d","colorbar":{"outlinewidth":0,"ticks":""}}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"parcoords":[{"type":"parcoords","line":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolargl":[{"type":"scatterpolargl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"scattergeo":[{"type":"scattergeo","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolar":[{"type":"scatterpolar","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"scattergl":[{"type":"scattergl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatter3d":[{"type":"scatter3d","line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermap":[{"type":"scattermap","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermapbox":[{"type":"scattermapbox","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterternary":[{"type":"scatterternary","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattercarpet":[{"type":"scattercarpet","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"type":"carpet"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}],"barpolar":[{"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"pie":[{"automargin":true,"type":"pie"}]},"layout":{"autotypenumbers":"strict","colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"hovermode":"closest","hoverlabel":{"align":"left"},"paper_bgcolor":"white","plot_bgcolor":"#E5ECF6","polar":{"bgcolor":"#E5ECF6","angularaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"radialaxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"ternary":{"bgcolor":"#E5ECF6","aaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"baxis":{"gridcolor":"white","linecolor":"white","ticks":""},"caxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]]},"xaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"yaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"scene":{"xaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"yaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"zaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"geo":{"bgcolor":"white","landcolor":"#E5ECF6","subunitcolor":"white","showland":true,"showlakes":true,"lakecolor":"white"},"title":{"x":0.05},"mapbox":{"style":"light"}}},"shapes":[{"line":{"color":"black","dash":"dash","width":1.5},"type":"line","x0":"2023-08-01","x1":"2023-08-01","y0":1.5,"y1":4.2}],"annotations":[{"font":{"color":"black","size":10},"showarrow":false,"text":"August 2023","x":"2023-08-01","y":4.1}],"title":{"font":{"size":16},"text":"5.2 LNC Status Classification (Aug 2022 - Aug 2024)\u003cbr\u003e\u003csup\u003eUC Davis October thresholds scaled by seasonal pattern | Actual observations shown\u003c\u002fsup\u003e"},"xaxis":{"title":{"text":"Date"},"tickformat":"%b %Y","dtick":"M2","range":["2022-08-08T00:00:00","2024-08-06T00:00:00"]},"yaxis":{"title":{"text":"N_Value (%)"},"range":[1.5,4.2]},"legend":{"orientation":"h","yanchor":"top","y":-0.15,"xanchor":"center","x":0.5},"height":700,"hovermode":"x unified"},                        {"responsive": true}                    )                };            </script>        </div>
+
+        <div class="key-observations">
+            <h4>Key Observations</h4>
+            <ul>
+                <li><strong>Ceiling Effect:</strong> High-N treatments (N100, N150) cluster together in the Excess zone,
+                suggesting a physiological upper limit to nitrogen accumulation in leaves regardless of fertilization rate</li>
+                <li><strong>Treatment Separation:</strong> Lower treatments (N10, N40, N60) show clearer differentiation,
+                with N10 occasionally dropping into the Low/Optimum zones during spring months</li>
+                <li><strong>Seasonal Wave:</strong> All treatments follow the same seasonal wave pattern - higher in winter,
+                lower in spring/early summer - validating the seasonal adjustment approach</li>
+                <li><strong>Optimum Range:</strong> N60 (the agronomic optimum treatment) largely stays within or
+                above the Optimum range throughout the year</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="warning-box">
+        <h4>Limitation of LNC-Only Assessment</h4>
+        <p>While LNC classification is valuable, it has an important limitation:</p>
+        <p><strong>LNC peaks in winter</strong> when leaf growth slows, not necessarily when the plant
+        needs fertilization. This "concentration effect" can be misleading for fertilization timing decisions.</p>
+        <p>This is why we explore the <strong>N/ST ratio</strong> in the next visualization - it combines
+        nitrogen status with starch reserves to provide a more complete picture of plant metabolic status.</p>
+    </div>
+
+    <div class="discovery-box">
+        <h3>Summary: LNC Classification Insights</h3>
+        <ul>
+            <li><strong>UC Davis thresholds are reliable</strong> when adjusted for seasonal patterns</li>
+            <li><strong>Treatment response is clear:</strong> Higher N fertilization → higher LNC (up to a ceiling)</li>
+            <li><strong>Seasonal adjustment is essential:</strong> Raw LNC values without seasonal context can mislead</li>
+            <li><strong>LNC alone is insufficient:</strong> For fertilization timing, we need additional metrics like the N/ST ratio</li>
+        </ul>
+    </div>
+
+</body>
+</html>

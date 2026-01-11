@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Visualization 1: Data Collection Story</title>
+    
+<style>
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+        color: #333;
+    }
+    h1 {
+        text-align: center;
+        color: #1b5e20;
+        margin-bottom: 10px;
+        font-size: 2.2em;
+    }
+    h2 {
+        color: white;
+        margin-top: 50px;
+        padding: 15px;
+        background: linear-gradient(90deg, #228B22, #32CD32);
+        border-radius: 5px;
+    }
+    h3 {
+        color: #1b5e20;
+        margin-top: 30px;
+        border-left: 4px solid #228B22;
+        padding-left: 15px;
+    }
+    .subtitle {
+        text-align: center;
+        color: #666;
+        font-size: 1.1em;
+        margin-bottom: 30px;
+    }
+    .analysis-section {
+        background: white;
+        padding: 20px;
+        margin: 20px 0;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .intro-box {
+        background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+        border: 2px solid #4CAF50;
+        padding: 20px;
+        border-radius: 8px;
+        margin: 20px 0;
+    }
+    .discovery-box {
+        background: linear-gradient(135deg, #c8e6c9, #a5d6a7);
+        border: 3px solid #2E7D32;
+        padding: 25px;
+        border-radius: 10px;
+        margin: 25px 0;
+    }
+    .discovery-box h3 {
+        color: #1b5e20;
+        margin-top: 0;
+        border: none;
+        padding-left: 0;
+    }
+    .flow-arrow {
+        text-align: center;
+        font-size: 40px;
+        color: #228B22;
+        margin: 30px 0;
+    }
+    .methodology {
+        background: #e8f4fd;
+        border-left: 4px solid #1f77b4;
+        padding: 15px 20px;
+        margin-top: 15px;
+        border-radius: 0 8px 8px 0;
+    }
+    .methodology h4 {
+        margin: 0 0 10px 0;
+        color: #333;
+    }
+    .key-observations {
+        background: #f8f9fa;
+        border-left: 4px solid #2ca02c;
+        padding: 15px 20px;
+        margin-top: 15px;
+        border-radius: 0 8px 8px 0;
+    }
+    .key-observations h4 {
+        margin: 0 0 10px 0;
+        color: #333;
+    }
+    .key-observations ul {
+        margin: 0;
+        padding-left: 20px;
+    }
+    .key-observations li {
+        margin-bottom: 8px;
+        line-height: 1.5;
+    }
+    .warning-box {
+        background: #fff3cd;
+        border-left: 4px solid #ffc107;
+        padding: 15px 20px;
+        margin-top: 15px;
+        border-radius: 0 8px 8px 0;
+    }
+    table {
+        border-collapse: collapse;
+        margin: 15px auto;
+    }
+    th, td {
+        border: 1px solid #ddd;
+        padding: 8px 12px;
+        text-align: left;
+    }
+    th {
+        background: linear-gradient(180deg, #e8f5e9, #c8e6c9);
+        color: #1b5e20;
+    }
+    .treatment-table th {
+        background: linear-gradient(180deg, #e8f5e9, #c8e6c9);
+    }
+    .timestamp {
+        text-align: center;
+        color: #666;
+        margin-top: 40px;
+        font-size: 0.9em;
+    }
+</style>
+
+</head>
+<body>
+    <h1>Data Collection Story</h1>
+    <p class="subtitle">Understanding the scope and distribution of our agricultural spectroscopy dataset</p>
+
+    <div class="intro-box">
+        <h3 style="margin-top: 0; border: none; padding-left: 0;">Research Context</h3>
+        <p>This research project combines <strong>spectroscopy measurements</strong> with <strong>chemical analysis</strong>
+        to study nitrogen status in agricultural crops. Leaf samples were collected from four crop types across
+        multiple research stations in Israel over several years.</p>
+
+        <p><strong>Key measurements collected:</strong></p>
+        <ul>
+            <li><strong>Spectral Data:</strong> Near-infrared reflectance across 1,557 wavelengths (3,999-10,001 nm)</li>
+            <li><strong>N_Value:</strong> Nitrogen content (%) - essential nutrient indicator</li>
+            <li><strong>SC_Value:</strong> Soluble Carbohydrates (mg/g) - readily available energy</li>
+            <li><strong>ST_Value:</strong> Starch content (mg/g) - long-term energy storage</li>
+        </ul>
+    </div>
+
+    <h3 style="margin-top: 30px;">Dataset Overview</h3>
+    <div class="analysis-section">
+        <p>Summary of samples collected across crops and locations:</p>
+        <table class="treatment-table" style="width: 100%;"><tr><th>Crop</th><th>Total Samples</th><th>Locations</th><th>Date Range</th><th>Unique Dates</th></tr><tr><td style="color: #E69F00; font-weight: bold;">Citrus</td><td>2882</td><td>Gilat (2370), Kfar Menahem (512)</td><td>Nov 2021 - Aug 2024</td><td>37</td></tr><tr><td style="color: #8B4513; font-weight: bold;">Almond</td><td>2503</td><td>Kedma (1897), Gilat (606)</td><td>May 2018 - Nov 2023</td><td>22</td></tr><tr><td style="color: #009E73; font-weight: bold;">Avocado</td><td>1848</td><td>Kabri (1315), Gilat (501), Kfar Menahem (32)</td><td>Oct 2019 - Jul 2024</td><td>29</td></tr><tr><td style="color: #CC79A7; font-weight: bold;">Vine</td><td>315</td><td>Gilat (315)</td><td>Aug 2020 - Jun 2022</td><td>4</td></tr></table>
+    </div>
+
+    <h2>Temporal Distribution</h2>
+
+    <h3>1.1 Timeline of Sample Collection</h3>
+    <div class="analysis-section">
+        <p>The timeline below shows when samples were collected for each crop type.
+        This temporal coverage is crucial for understanding seasonal patterns in plant chemistry.</p>
+        <div>                        <script type="text/javascript">window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
+        <script charset="utf-8" src="https://cdn.plot.ly/plotly-3.3.0.min.js" integrity="sha256-bO3dS6yCpk9aK4gUpNELtCiDeSYvGYnK7jFI58NQnHI=" crossorigin="anonymous"></script>                <div id="6aa6e837-3e77-466c-b2b2-3ce6d1e85b3c" class="plotly-graph-div" style="height:500px; width:100%;"></div>            <script type="text/javascript">                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("6aa6e837-3e77-466c-b2b2-3ce6d1e85b3c")) {                    Plotly.newPlot(                        "6aa6e837-3e77-466c-b2b2-3ce6d1e85b3c",                        [{"hovertemplate":"Citrus\u003cbr\u003e%{x|%B %Y}\u003cbr\u003eSamples: %{y}\u003cextra\u003e\u003c\u002fextra\u003e","marker":{"color":"#E69F00"},"name":"Citrus","x":["2021-11-01T00:00:00","2022-03-01T00:00:00","2022-04-01T00:00:00","2022-05-01T00:00:00","2022-06-01T00:00:00","2022-07-01T00:00:00","2022-08-01T00:00:00","2022-09-01T00:00:00","2022-10-01T00:00:00","2022-11-01T00:00:00","2022-12-01T00:00:00","2023-01-01T00:00:00","2023-02-01T00:00:00","2023-03-01T00:00:00","2023-04-01T00:00:00","2023-05-01T00:00:00","2023-06-01T00:00:00","2023-07-01T00:00:00","2023-08-01T00:00:00","2023-09-01T00:00:00","2023-10-01T00:00:00","2023-11-01T00:00:00","2023-12-01T00:00:00","2024-01-01T00:00:00","2024-02-01T00:00:00","2024-03-01T00:00:00","2024-04-01T00:00:00","2024-05-01T00:00:00","2024-07-01T00:00:00","2024-08-01T00:00:00"],"y":{"dtype":"i2","bdata":"RABLAEsARwC6AEsAugBLACwBSwBLAFAASwBLAJYASwBzAEsAXwBzAEsASwBLAEsASwBLAFsASwBLAEsA"},"type":"bar"},{"hovertemplate":"Almond\u003cbr\u003e%{x|%B %Y}\u003cbr\u003eSamples: %{y}\u003cextra\u003e\u003c\u002fextra\u003e","marker":{"color":"#8B4513"},"name":"Almond","x":["2018-05-01T00:00:00","2018-06-01T00:00:00","2018-07-01T00:00:00","2018-08-01T00:00:00","2018-09-01T00:00:00","2018-10-01T00:00:00","2021-10-01T00:00:00","2022-04-01T00:00:00","2022-05-01T00:00:00","2022-06-01T00:00:00","2022-07-01T00:00:00","2022-08-01T00:00:00","2022-09-01T00:00:00","2022-11-01T00:00:00","2023-05-01T00:00:00","2023-06-01T00:00:00","2023-07-01T00:00:00","2023-09-01T00:00:00","2023-11-01T00:00:00"],"y":{"dtype":"i2","bdata":"VQBmAGwAaQBQAG8ADwCgAPAA8AB3AHcAbQBzAHMA3QBpAHcAbwA="},"type":"bar"},{"hovertemplate":"Avocado\u003cbr\u003e%{x|%B %Y}\u003cbr\u003eSamples: %{y}\u003cextra\u003e\u003c\u002fextra\u003e","marker":{"color":"#009E73"},"name":"Avocado","x":["2019-10-01T00:00:00","2020-06-01T00:00:00","2020-10-01T00:00:00","2021-10-01T00:00:00","2022-05-01T00:00:00","2022-06-01T00:00:00","2022-07-01T00:00:00","2022-08-01T00:00:00","2022-09-01T00:00:00","2022-10-01T00:00:00","2022-11-01T00:00:00","2023-03-01T00:00:00","2023-04-01T00:00:00","2023-05-01T00:00:00","2023-06-01T00:00:00","2023-08-01T00:00:00","2023-09-01T00:00:00","2023-11-01T00:00:00","2023-12-01T00:00:00","2024-06-01T00:00:00","2024-07-01T00:00:00"],"y":{"dtype":"i2","bdata":"FAAXABUAIgClANcApQClAKMAMgAeANQAMgClAJoANwACADcAMgAEADIA"},"type":"bar"},{"hovertemplate":"Vine\u003cbr\u003e%{x|%B %Y}\u003cbr\u003eSamples: %{y}\u003cextra\u003e\u003c\u002fextra\u003e","marker":{"color":"#CC79A7"},"name":"Vine","x":["2020-08-01T00:00:00","2021-07-01T00:00:00","2021-10-01T00:00:00","2022-06-01T00:00:00"],"y":{"dtype":"i1","bdata":"VFRQQw=="},"type":"bar"}],                        {"template":{"data":{"histogram2dcontour":[{"type":"histogram2dcontour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"choropleth":[{"type":"choropleth","colorbar":{"outlinewidth":0,"ticks":""}}],"histogram2d":[{"type":"histogram2d","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"heatmap":[{"type":"heatmap","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"contourcarpet":[{"type":"contourcarpet","colorbar":{"outlinewidth":0,"ticks":""}}],"contour":[{"type":"contour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"surface":[{"type":"surface","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"mesh3d":[{"type":"mesh3d","colorbar":{"outlinewidth":0,"ticks":""}}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"parcoords":[{"type":"parcoords","line":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolargl":[{"type":"scatterpolargl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"scattergeo":[{"type":"scattergeo","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolar":[{"type":"scatterpolar","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"scattergl":[{"type":"scattergl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatter3d":[{"type":"scatter3d","line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermap":[{"type":"scattermap","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermapbox":[{"type":"scattermapbox","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterternary":[{"type":"scatterternary","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattercarpet":[{"type":"scattercarpet","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"type":"carpet"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}],"barpolar":[{"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"pie":[{"automargin":true,"type":"pie"}]},"layout":{"autotypenumbers":"strict","colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"hovermode":"closest","hoverlabel":{"align":"left"},"paper_bgcolor":"white","plot_bgcolor":"#E5ECF6","polar":{"bgcolor":"#E5ECF6","angularaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"radialaxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"ternary":{"bgcolor":"#E5ECF6","aaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"baxis":{"gridcolor":"white","linecolor":"white","ticks":""},"caxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]]},"xaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"yaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"scene":{"xaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"yaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"zaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"geo":{"bgcolor":"white","landcolor":"#E5ECF6","subunitcolor":"white","showland":true,"showlakes":true,"lakecolor":"white"},"title":{"x":0.05},"mapbox":{"style":"light"}}},"title":{"font":{"size":18},"text":"1.1 Timeline of Sample Collection\u003cbr\u003e\u003csup\u003eMonthly sample counts by crop type\u003c\u002fsup\u003e"},"xaxis":{"title":{"text":"Collection Date"},"tickformat":"%b %Y","dtick":"M3"},"legend":{"orientation":"h","yanchor":"bottom","y":1.02,"xanchor":"center","x":0.5,"title":{"text":"Crop Type"}},"yaxis":{"title":{"text":"Number of Samples"}},"barmode":"group","height":500,"hovermode":"x unified"},                        {"responsive": true}                    )                };            </script>        </div>
+    </div>
+
+    <h3>1.2 Seasonal Sample Distribution</h3>
+    <div class="analysis-section">
+        <p>Monthly distribution reveals the seasonal coverage of our sampling. Different crops have
+        different active growing seasons, reflected in the sampling patterns.</p>
+        <div>                            <div id="f2687b76-02b9-4e92-9ca3-69b2e091115a" class="plotly-graph-div" style="height:500px; width:100%;"></div>            <script type="text/javascript">                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("f2687b76-02b9-4e92-9ca3-69b2e091115a")) {                    Plotly.newPlot(                        "f2687b76-02b9-4e92-9ca3-69b2e091115a",                        [{"hovertemplate":"Citrus\u003cbr\u003e%{x}\u003cbr\u003eSamples: %{y}\u003cextra\u003e\u003c\u002fextra\u003e","marker":{"color":"#E69F00"},"name":"Citrus","x":["January","February","March","April","May","June","July","August","September","October","November","December"],"y":{"dtype":"i2","bdata":"mwCWAOEAPAHdAC0B4QBkAb4AdwHaAJYA"},"type":"bar"},{"hovertemplate":"Almond\u003cbr\u003e%{x}\u003cbr\u003eSamples: %{y}\u003cextra\u003e\u003c\u002fextra\u003e","marker":{"color":"#8B4513"},"name":"Almond","x":["January","February","March","April","May","June","July","August","September","October","November","December"],"y":{"dtype":"i2","bdata":"AAAAAAAAoAC4ATMCTAHgADQBfgDiAAAA"},"type":"bar"},{"hovertemplate":"Avocado\u003cbr\u003e%{x}\u003cbr\u003eSamples: %{y}\u003cextra\u003e\u003c\u002fextra\u003e","marker":{"color":"#009E73"},"name":"Avocado","x":["January","February","March","April","May","June","July","August","September","October","November","December"],"y":{"dtype":"i2","bdata":"AAAAANQAMgBKAYwB1wDcAKUAfQBVADIA"},"type":"bar"},{"hovertemplate":"Vine\u003cbr\u003e%{x}\u003cbr\u003eSamples: %{y}\u003cextra\u003e\u003c\u002fextra\u003e","marker":{"color":"#CC79A7"},"name":"Vine","x":["January","February","March","April","May","June","July","August","September","October","November","December"],"y":{"dtype":"i1","bdata":"AAAAAABDVFQAUAAA"},"type":"bar"}],                        {"template":{"data":{"histogram2dcontour":[{"type":"histogram2dcontour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"choropleth":[{"type":"choropleth","colorbar":{"outlinewidth":0,"ticks":""}}],"histogram2d":[{"type":"histogram2d","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"heatmap":[{"type":"heatmap","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"contourcarpet":[{"type":"contourcarpet","colorbar":{"outlinewidth":0,"ticks":""}}],"contour":[{"type":"contour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"surface":[{"type":"surface","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"mesh3d":[{"type":"mesh3d","colorbar":{"outlinewidth":0,"ticks":""}}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"parcoords":[{"type":"parcoords","line":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolargl":[{"type":"scatterpolargl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"scattergeo":[{"type":"scattergeo","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolar":[{"type":"scatterpolar","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"scattergl":[{"type":"scattergl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatter3d":[{"type":"scatter3d","line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermap":[{"type":"scattermap","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermapbox":[{"type":"scattermapbox","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterternary":[{"type":"scatterternary","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattercarpet":[{"type":"scattercarpet","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"type":"carpet"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}],"barpolar":[{"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"pie":[{"automargin":true,"type":"pie"}]},"layout":{"autotypenumbers":"strict","colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"hovermode":"closest","hoverlabel":{"align":"left"},"paper_bgcolor":"white","plot_bgcolor":"#E5ECF6","polar":{"bgcolor":"#E5ECF6","angularaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"radialaxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"ternary":{"bgcolor":"#E5ECF6","aaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"baxis":{"gridcolor":"white","linecolor":"white","ticks":""},"caxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]]},"xaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"yaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"scene":{"xaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"yaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"zaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"geo":{"bgcolor":"white","landcolor":"#E5ECF6","subunitcolor":"white","showland":true,"showlakes":true,"lakecolor":"white"},"title":{"x":0.05},"mapbox":{"style":"light"}}},"xaxis":{"tickangle":-45,"categoryorder":"array","categoryarray":["January","February","March","April","May","June","July","August","September","October","November","December"],"title":{"text":"Month"}},"title":{"font":{"size":18},"text":"1.2 Seasonal Sample Distribution\u003cbr\u003e\u003csup\u003eMonthly sample counts by crop (all years combined)\u003c\u002fsup\u003e"},"yaxis":{"title":{"text":"Number of Samples"},"range":[0,600]},"legend":{"orientation":"h","yanchor":"bottom","y":1.02,"xanchor":"center","x":0.5,"title":{"text":"Crop Type"}},"barmode":"group","height":500,"hovermode":"x unified"},                        {"responsive": true}                    )                };            </script>        </div>
+
+        <div class="key-observations">
+            <h4>Seasonal Observations</h4>
+            <ul>
+                <li><strong>Citrus:</strong> Year-round sampling with peaks in spring and summer</li>
+                <li><strong>Almond:</strong> Concentrated sampling during active growing season</li>
+                <li><strong>Avocado:</strong> Multiple seasons covered for comprehensive analysis</li>
+                <li><strong>Vine:</strong> Focused sampling during key phenological stages</li>
+            </ul>
+        </div>
+    </div>
+
+    <h2>Geographic Distribution</h2>
+
+    <h3>1.3 Sample Locations Across Israel</h3>
+    <div class="analysis-section">
+        <p>Samples were collected from four agricultural research stations across Israel,
+        representing different climatic zones and growing conditions. Circle size indicates sample count.</p>
+        
+    <div id="israel-map" style="height: 600px; width: 100%; border-radius: 8px; margin: 20px 0;"></div>
+    <div style="display: flex; justify-content: center; gap: 30px; margin-top: 15px; flex-wrap: wrap;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 16px; height: 16px; border-radius: 50%; background: #E69F00;"></div>
+            <span>Citrus</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 16px; height: 16px; border-radius: 50%; background: #8B4513;"></div>
+            <span>Almond</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 16px; height: 16px; border-radius: 50%; background: #009E73;"></div>
+            <span>Avocado</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 16px; height: 16px; border-radius: 50%; background: #CC79A7;"></div>
+            <span>Vine</span>
+        </div>
+    </div>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        (function() {
+            const markersData = [{"lat": 31.3358, "lon": 34.6536, "location": "Gilat", "crop": "Almond", "count": 606, "color": "#8B4513"}, {"lat": 31.3358, "lon": 34.6536, "location": "Gilat", "crop": "Avocado", "count": 501, "color": "#009E73"}, {"lat": 31.3358, "lon": 34.6536, "location": "Gilat", "crop": "Citrus", "count": 2370, "color": "#E69F00"}, {"lat": 31.3358, "lon": 34.6536, "location": "Gilat", "crop": "Vine", "count": 315, "color": "#CC79A7"}, {"lat": 33.0167, "lon": 35.1333, "location": "Kabri", "crop": "Avocado", "count": 1315, "color": "#009E73"}, {"lat": 31.6214, "lon": 34.7847, "location": "Kedma", "crop": "Almond", "count": 1897, "color": "#8B4513"}, {"lat": 31.7333, "lon": 34.8333, "location": "Kfar Menahem", "crop": "Avocado", "count": 32, "color": "#009E73"}, {"lat": 31.7333, "lon": 34.8333, "location": "Kfar Menahem", "crop": "Citrus", "count": 512, "color": "#E69F00"}];
+            const locationsData = {"Gilat": {"lat": 31.3358, "lon": 34.6536, "description": "Gilat Research Station - Major agricultural research center in the Negev"}, "Kedma": {"lat": 31.6214, "lon": 34.7847, "description": "Kedma - Central Israel agricultural area"}, "Kabri": {"lat": 33.0167, "lon": 35.1333, "description": "Kabri - Northern Israel, Western Galilee"}, "Kfar Menahem": {"lat": 31.7333, "lon": 34.8333, "description": "Kfar Menahem - Coastal plain agricultural region"}};
+            const locTotals = {"Gilat": 3792, "Kabri": 1315, "Kedma": 1897, "Kfar Menahem": 544};
+            const cropColors = {"Citrus": "#E69F00", "Almond": "#8B4513", "Avocado": "#009E73", "Vine": "#CC79A7"};
+
+            // Initialize map centered on Israel
+            const map = L.map('israel-map', {
+                center: [31.5, 35.0],
+                zoom: 8,
+                minZoom: 7,
+                maxZoom: 12
+            });
+
+            // Add CartoDB Positron tile layer (clean, light style)
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+                subdomains: 'abcd',
+                maxZoom: 20
+            }).addTo(map);
+
+            // Group markers by location to offset them
+            const locationOffsets = {};
+            const offsetStep = 0.03;
+
+            markersData.forEach((marker, index) => {
+                const key = marker.location;
+                if (!locationOffsets[key]) {
+                    locationOffsets[key] = 0;
+                }
+
+                // Calculate offset for multiple crops at same location
+                const cropIndex = ['Citrus', 'Almond', 'Avocado', 'Vine'].indexOf(marker.crop);
+                const latOffset = (cropIndex % 2) * offsetStep - offsetStep / 2;
+                const lonOffset = Math.floor(cropIndex / 2) * offsetStep - offsetStep / 2;
+
+                // Size based on sample count (radius in pixels)
+                const radius = Math.max(8, Math.min(35, Math.sqrt(marker.count) * 2.5));
+
+                // Create circle marker
+                const circle = L.circleMarker([marker.lat + latOffset, marker.lon + lonOffset], {
+                    radius: radius,
+                    fillColor: marker.color,
+                    color: '#fff',
+                    weight: 2,
+                    opacity: 1,
+                    fillOpacity: 0.8
+                }).addTo(map);
+
+                // Add popup
+                circle.bindPopup(`
+                    <div style="text-align: center; padding: 5px;">
+                        <strong style="font-size: 14px; color: ${marker.color};">${marker.crop}</strong><br>
+                        <span style="font-size: 12px;">${marker.location}</span><br>
+                        <span style="font-size: 16px; font-weight: bold;">${marker.count} samples</span>
+                    </div>
+                `);
+
+                // Hover effect
+                circle.on('mouseover', function() {
+                    this.setStyle({ fillOpacity: 1, weight: 3 });
+                });
+                circle.on('mouseout', function() {
+                    this.setStyle({ fillOpacity: 0.8, weight: 2 });
+                });
+            });
+
+            // Add location labels
+            Object.keys(locationsData).forEach(locName => {
+                const loc = locationsData[locName];
+                const total = locTotals[locName] || 0;
+
+                L.marker([loc.lat + 0.08, loc.lon], {
+                    icon: L.divIcon({
+                        className: 'location-label',
+                        html: `<div style="
+                            background: rgba(27, 94, 32, 0.9);
+                            color: white;
+                            padding: 4px 10px;
+                            border-radius: 4px;
+                            font-size: 12px;
+                            font-weight: bold;
+                            white-space: nowrap;
+                            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                        ">${locName} (${total})</div>`,
+                        iconSize: [100, 20],
+                        iconAnchor: [50, 10]
+                    })
+                }).addTo(map);
+            });
+        })();
+    </script>
+    
+
+        <div class="methodology">
+            <h4>Research Stations</h4>
+            <ul>
+                <li><strong>Gilat:</strong> Major research station in the Negev - primary location for NPK experiments</li>
+                <li><strong>Kedma:</strong> Central Israel agricultural research area</li>
+                <li><strong>Kabri:</strong> Western Galilee - northern climate conditions</li>
+                <li><strong>Kfar Menahem:</strong> Coastal plain - Mediterranean climate</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="discovery-box">
+        <h3>Data Collection Summary</h3>
+        <p>This comprehensive dataset provides the foundation for our analysis of crop nitrogen status:</p>
+        <ul>
+            <li><strong>Multi-crop coverage:</strong> Four distinct crop types with different physiological characteristics</li>
+            <li><strong>Temporal depth:</strong> Multi-year sampling enabling seasonal and annual pattern analysis</li>
+            <li><strong>Geographic diversity:</strong> Four locations representing Israel's agricultural zones</li>
+            <li><strong>Rich measurements:</strong> Combined spectral and chemical data for advanced modeling</li>
+        </ul>
+    </div>
+
+</body>
+</html>

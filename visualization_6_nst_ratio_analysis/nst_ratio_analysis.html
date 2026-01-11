@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Visualization 6: N/ST Ratio Analysis</title>
+    
+<style>
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+        color: #333;
+    }
+    h1 {
+        text-align: center;
+        color: #1b5e20;
+        margin-bottom: 10px;
+        font-size: 2.2em;
+    }
+    h2 {
+        color: white;
+        margin-top: 50px;
+        padding: 15px;
+        background: linear-gradient(90deg, #228B22, #32CD32);
+        border-radius: 5px;
+    }
+    h3 {
+        color: #1b5e20;
+        margin-top: 30px;
+        border-left: 4px solid #228B22;
+        padding-left: 15px;
+    }
+    .subtitle {
+        text-align: center;
+        color: #666;
+        font-size: 1.1em;
+        margin-bottom: 30px;
+    }
+    .analysis-section {
+        background: white;
+        padding: 20px;
+        margin: 20px 0;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .intro-box {
+        background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+        border: 2px solid #4CAF50;
+        padding: 20px;
+        border-radius: 8px;
+        margin: 20px 0;
+    }
+    .discovery-box {
+        background: linear-gradient(135deg, #c8e6c9, #a5d6a7);
+        border: 3px solid #2E7D32;
+        padding: 25px;
+        border-radius: 10px;
+        margin: 25px 0;
+    }
+    .discovery-box h3 {
+        color: #1b5e20;
+        margin-top: 0;
+        border: none;
+        padding-left: 0;
+    }
+    .flow-arrow {
+        text-align: center;
+        font-size: 40px;
+        color: #228B22;
+        margin: 30px 0;
+    }
+    .methodology {
+        background: #e8f4fd;
+        border-left: 4px solid #1f77b4;
+        padding: 15px 20px;
+        margin-top: 15px;
+        border-radius: 0 8px 8px 0;
+    }
+    .methodology h4 {
+        margin: 0 0 10px 0;
+        color: #333;
+    }
+    .key-observations {
+        background: #f8f9fa;
+        border-left: 4px solid #2ca02c;
+        padding: 15px 20px;
+        margin-top: 15px;
+        border-radius: 0 8px 8px 0;
+    }
+    .key-observations h4 {
+        margin: 0 0 10px 0;
+        color: #333;
+    }
+    .key-observations ul {
+        margin: 0;
+        padding-left: 20px;
+    }
+    .key-observations li {
+        margin-bottom: 8px;
+        line-height: 1.5;
+    }
+    .warning-box {
+        background: #fff3cd;
+        border-left: 4px solid #ffc107;
+        padding: 15px 20px;
+        margin-top: 15px;
+        border-radius: 0 8px 8px 0;
+    }
+    table {
+        border-collapse: collapse;
+        margin: 15px auto;
+    }
+    th, td {
+        border: 1px solid #ddd;
+        padding: 8px 12px;
+        text-align: left;
+    }
+    th {
+        background: linear-gradient(180deg, #e8f5e9, #c8e6c9);
+        color: #1b5e20;
+    }
+    .treatment-table th {
+        background: linear-gradient(180deg, #e8f5e9, #c8e6c9);
+    }
+    .timestamp {
+        text-align: center;
+        color: #666;
+        margin-top: 40px;
+        font-size: 0.9em;
+    }
+</style>
+
+    <style>
+        .ratio-highlight {
+            background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+            border: 3px solid #ff8c00;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 25px 0;
+        }
+        .ratio-highlight h3 {
+            color: #e65100;
+            margin-top: 0;
+            border: none;
+            padding-left: 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>N/ST Ratio Analysis</h1>
+    <p class="subtitle">Why the N/ST ratio outperforms nitrogen alone for fertilization timing</p>
+
+    <div class="ratio-highlight">
+        <h3>The Core Insight</h3>
+        <p style="font-size: 1.1em;">Traditional fertilization timing relies on <strong>Leaf Nitrogen Content (LNC)</strong> alone.
+        However, LNC peaks in winter when leaf growth slows - this is a <strong>concentration effect</strong>,
+        not a signal that the plant needs fertilization.</p>
+
+        <p style="font-size: 1.1em;">The <strong style="color: #ff8c00;">N/ST ratio</strong> solves this by combining:</p>
+        <ul style="font-size: 1.1em;">
+            <li><strong>N_Value:</strong> Nitrogen content - the nutrient supply</li>
+            <li><strong>ST_Value:</strong> Starch content - the energy reserves</li>
+        </ul>
+
+        <p style="font-size: 1.1em; font-weight: bold; color: #e65100;">
+        When ST drops (spring/summer growth), the ratio rises - correctly signaling fertilization need.
+        </p>
+    </div>
+
+    <h2>Normalized Comparison</h2>
+
+    <div class="methodology">
+        <h4>Why Normalize?</h4>
+        <p>N_Value (%), ST_Value (mg/g), and N/ST ratio have different units and scales.
+        Normalizing each to 0-100% allows direct comparison of <strong>timing patterns</strong>
+        rather than absolute values.</p>
+    </div>
+
+    <h3>Full Period: Aug 2022 - Aug 2024</h3>
+
+    <div class="analysis-section">
+        <p>All curves scaled to their min-max range. The <strong style="color: #ff8c00;">bright orange ratio line</strong>
+        shows when fertilization is needed - it rises when ST drops, regardless of what N alone suggests.</p>
+        <div>                        <script type="text/javascript">window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
+        <script charset="utf-8" src="https://cdn.plot.ly/plotly-3.3.0.min.js" integrity="sha256-bO3dS6yCpk9aK4gUpNELtCiDeSYvGYnK7jFI58NQnHI=" crossorigin="anonymous"></script>                <div id="4a7e6d2e-d0dd-46a8-9a4d-5bc4dab4ef93" class="plotly-graph-div" style="height:550px; width:100%;"></div>            <script type="text/javascript">                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("4a7e6d2e-d0dd-46a8-9a4d-5bc4dab4ef93")) {                    Plotly.newPlot(                        "4a7e6d2e-d0dd-46a8-9a4d-5bc4dab4ef93",                        [{"customdata":{"dtype":"f8","bdata":"rauuvXkbCUAd0q+RG\u002fYIQK0Q6z6+7ghAaAhiWjlmDEBt8l1fzRcLQAFGv8BkVApAwGwBIMyJC0Ag4ZQmqPYIQOghWT1+cAFASmful1jsA0AMX+zxQ5oGQFj6f8bE1gdAgBZNWpuwB0Cd22laP5QGQCBdi8sTFwhADrjn\u002fcxmCkCmlNDB\u002fSULQHdl9eg91QdAwf5bVvY1B0CbYZfyJdkFQE2jm8VIfQdAeAg4xjqTB0APJAdRGRAIQA=="},"hovertemplate":"N: %{customdata:.2f}% (norm: %{y:.0f}%)\u003cextra\u003e\u003c\u002fextra\u003e","line":{"color":"#7fb3d5","width":2},"marker":{"size":6},"mode":"lines+markers","name":"N Value","x":["2022-08-15T00:00:00","2022-09-15T00:00:00","2022-10-15T00:00:00","2022-11-15T00:00:00","2022-12-15T00:00:00","2023-01-15T00:00:00","2023-02-15T00:00:00","2023-03-15T00:00:00","2023-05-15T00:00:00","2023-06-15T00:00:00","2023-07-15T00:00:00","2023-08-15T00:00:00","2023-09-15T00:00:00","2023-10-15T00:00:00","2023-11-15T00:00:00","2023-12-15T00:00:00","2024-01-15T00:00:00","2024-02-15T00:00:00","2024-03-15T00:00:00","2024-04-15T00:00:00","2024-05-15T00:00:00","2024-07-15T00:00:00","2024-08-15T00:00:00"],"y":{"dtype":"f8","bdata":"uXyW\u002fqZ9UUARF+seaihRQL\u002fax5ydF1FAAAAAAAAAWUA1JVEsKwVWQGl0w7xuR1RAAc9XXDIJV0Dx9jnLqilRQAAAAAAAAAAApRssW6OpNkAkoMmqC45HQPRn9VL2MU1A4O33U92DTECdNctYl3JHQNhznh5YV05AXwSkkWtxVEBIA8jOiCVWQIGbFyn\u002fKk1AHLGiSFlUSkAUBQYFBx1EQBZR6Oy5mUtAAqeZw9f9S0CYjaUKgjdOQA=="},"type":"scatter"},{"customdata":{"dtype":"f8","bdata":"8ZbxYWKrWUBhTflmmfROQN1AxO562ypAUURtnSDPNkDsYWfPOHVCQNoNtzL8eDFAFvPRZW+ZNUByA3nCH8hIQNfVlwdIRFtAJdZzNM04SkCYuYxeHuNgQAKHL60pHGJAwITGFlfYYEA4Um+Jwr9iQJBllVxrzGBAJhTKcPCNXkAG0qoD7rNgQIV0\u002fXkJJmFAIB7oOd2cYkBGGMWHbqZNQNPVUS0ShVNACh0BzsyUW0A+jx0XlgNSQA=="},"hovertemplate":"ST: %{customdata:.1f} mg\u002fg (norm: %{y:.0f}%)\u003cextra\u003e\u003c\u002fextra\u003e","line":{"color":"#82c982","width":2},"marker":{"size":6},"mode":"lines+markers","name":"ST Value","x":["2022-08-15T00:00:00","2022-09-15T00:00:00","2022-10-15T00:00:00","2022-11-15T00:00:00","2022-12-15T00:00:00","2023-01-15T00:00:00","2023-02-15T00:00:00","2023-03-15T00:00:00","2023-05-15T00:00:00","2023-06-15T00:00:00","2023-07-15T00:00:00","2023-08-15T00:00:00","2023-09-15T00:00:00","2023-10-15T00:00:00","2023-11-15T00:00:00","2023-12-15T00:00:00","2024-01-15T00:00:00","2024-02-15T00:00:00","2024-03-15T00:00:00","2024-04-15T00:00:00","2024-05-15T00:00:00","2024-07-15T00:00:00","2024-08-15T00:00:00"],"y":{"dtype":"f8","bdata":"F\u002fjXXJ9WUEBIpc5rMsBBQAAAAAAAAAAA9jruV755G0DMWPE62jIxQCuuatmIsAdA8aZGA6XuF0D6bX38wnU6QFXIZXEKglFAt9v\u002fL7KRPEDq28pt80VWQHHNAchoEFhAppKvaio2VkAAAAAAAABZQGYndhy1JFZABvclDlrqU0DocyOM1wBWQJ6onjj0p1ZAc9Z6BOXMWEBtJ7MCgMtAQAZDXg2jq0dAxKfGUQC9UUCKDI2PFndFQA=="},"type":"scatter"},{"customdata":{"dtype":"f8","bdata":"RA6Q05lMnz+otPPbus2pPyAAmdfptM0\u002ftd+nx+Drwz8iry\u002fRNny3P1ONBWxPHMg\u002fKJDBUTpmxD9Zgv8TCx6wP3Q1Fu19d5Q\u002fym39aTtQqD9nLTx2R2qVP+aTnwK7D5U\u002fywcABlyAlj810p59uUSTP1law0Pt8ZY\u002fhd2LVJCmmz8YFZOwiQGaPzvf1F+XPJY\u002fiq3+JN3zkz\u002fUjA2+bJSnP8vuhkj4QKM\u002fkbAJ3x9amz8xurWdYl+lPw=="},"hovertemplate":"N\u002fST: %{customdata:.4f} (norm: %{y:.0f}%)\u003cextra\u003e\u003c\u002fextra\u003e","line":{"color":"#ff8c00","width":4},"marker":{"size":9,"symbol":"diamond"},"mode":"lines+markers","name":"N\u002fST Ratio","x":["2022-08-15T00:00:00","2022-09-15T00:00:00","2022-10-15T00:00:00","2022-11-15T00:00:00","2022-12-15T00:00:00","2023-01-15T00:00:00","2023-02-15T00:00:00","2023-03-15T00:00:00","2023-05-15T00:00:00","2023-06-15T00:00:00","2023-07-15T00:00:00","2023-08-15T00:00:00","2023-09-15T00:00:00","2023-10-15T00:00:00","2023-11-15T00:00:00","2023-12-15T00:00:00","2024-01-15T00:00:00","2024-02-15T00:00:00","2024-03-15T00:00:00","2024-04-15T00:00:00","2024-05-15T00:00:00","2024-07-15T00:00:00","2024-08-15T00:00:00"],"y":{"dtype":"f8","bdata":"1pKgKS8JFkCPCfvpxp0tQAAAAAAAAFlA0WPg29oJUEDVLKLfsxhBQM8LLLMA4FNAYcOui+d5UED1HRjfpLI0QAEzifQQj+E\u002fF29G7APjKkDkssOloXTvP0fnXiTSReo\u002fgfzGWqyv9z8AAAAAAAAAAKO5yay57\u002fo\u002fO1606cC0DkA2sx\u002fAba4IQIFbxVgrv\u002fU\u002fu6NKBKMM1D\u002f3Jl28BYspQCgDuQWUniFAdRyVrrycDUDjLTqtFIAlQA=="},"type":"scatter"}],                        {"template":{"data":{"histogram2dcontour":[{"type":"histogram2dcontour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"choropleth":[{"type":"choropleth","colorbar":{"outlinewidth":0,"ticks":""}}],"histogram2d":[{"type":"histogram2d","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"heatmap":[{"type":"heatmap","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"contourcarpet":[{"type":"contourcarpet","colorbar":{"outlinewidth":0,"ticks":""}}],"contour":[{"type":"contour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"surface":[{"type":"surface","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"mesh3d":[{"type":"mesh3d","colorbar":{"outlinewidth":0,"ticks":""}}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"parcoords":[{"type":"parcoords","line":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolargl":[{"type":"scatterpolargl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"scattergeo":[{"type":"scattergeo","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolar":[{"type":"scatterpolar","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"scattergl":[{"type":"scattergl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatter3d":[{"type":"scatter3d","line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermap":[{"type":"scattermap","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermapbox":[{"type":"scattermapbox","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterternary":[{"type":"scatterternary","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattercarpet":[{"type":"scattercarpet","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"type":"carpet"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}],"barpolar":[{"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"pie":[{"automargin":true,"type":"pie"}]},"layout":{"autotypenumbers":"strict","colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"hovermode":"closest","hoverlabel":{"align":"left"},"paper_bgcolor":"white","plot_bgcolor":"#E5ECF6","polar":{"bgcolor":"#E5ECF6","angularaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"radialaxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"ternary":{"bgcolor":"#E5ECF6","aaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"baxis":{"gridcolor":"white","linecolor":"white","ticks":""},"caxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]]},"xaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"yaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"scene":{"xaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"yaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"zaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"geo":{"bgcolor":"white","landcolor":"#E5ECF6","subunitcolor":"white","showland":true,"showlakes":true,"lakecolor":"white"},"title":{"x":0.05},"mapbox":{"style":"light"}}},"shapes":[{"line":{"color":"black","dash":"dash","width":1.5},"type":"line","x0":"2023-08-01","x1":"2023-08-01","y0":0,"y1":100}],"annotations":[{"arrowhead":2,"ax":0,"ay":20,"font":{"color":"#7fb3d5","size":10},"showarrow":true,"text":"N peaks here","x":"2022-11-15T00:00:00","y":100},{"arrowhead":2,"ax":-60,"ay":-30,"font":{"color":"#ff8c00","size":10},"showarrow":true,"text":"Ratio peaks here →\u003cbr\u003eFertilization window","x":"2022-10-15T00:00:00","y":100.0}],"title":{"font":{"size":16},"text":"Normalized View - Full Period (Aug 2022 - Aug 2024)\u003cbr\u003e\u003csup\u003eAll curves scaled to 0-100% for direct timing comparison\u003c\u002fsup\u003e"},"xaxis":{"title":{"text":"Date"},"tickformat":"%b %Y","dtick":"M2"},"yaxis":{"title":{"text":"Normalized Value (%)"},"range":[0,105]},"legend":{"orientation":"h","yanchor":"bottom","y":1.02,"xanchor":"center","x":0.5},"height":550,"hovermode":"x unified"},                        {"responsive": true}                    )                };            </script>        </div>
+    </div>
+
+    <h3>Recent Period: Aug 2023 - Aug 2024</h3>
+
+    <div class="analysis-section">
+        <p>Excludes the 2022 depleted year for a <strong>cleaner seasonal pattern</strong>.
+        This period shows the typical annual cycle without the anomalous starch depletion event.</p>
+        <div>                            <div id="52b4df40-cc8b-488c-b492-328c4e680617" class="plotly-graph-div" style="height:550px; width:100%;"></div>            <script type="text/javascript">                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("52b4df40-cc8b-488c-b492-328c4e680617")) {                    Plotly.newPlot(                        "52b4df40-cc8b-488c-b492-328c4e680617",                        [{"customdata":{"dtype":"f8","bdata":"WPp\u002fxsTWB0CAFk1am7AHQJ3baVo\u002flAZAIF2LyxMXCEAOuOf9zGYKQKaU0MH9JQtAd2X16D3VB0DB\u002fltW9jUHQJthl\u002fIl2QVATaObxUh9B0B4CDjGOpMHQA8kB1EZEAhA"},"hovertemplate":"N: %{customdata:.2f}% (norm: %{y:.0f}%)\u003cextra\u003e\u003c\u002fextra\u003e","line":{"color":"#7fb3d5","width":2},"marker":{"size":6},"mode":"lines+markers","name":"N Value","x":["2023-08-15T00:00:00","2023-09-15T00:00:00","2023-10-15T00:00:00","2023-11-15T00:00:00","2023-12-15T00:00:00","2024-01-15T00:00:00","2024-02-15T00:00:00","2024-03-15T00:00:00","2024-04-15T00:00:00","2024-05-15T00:00:00","2024-07-15T00:00:00","2024-08-15T00:00:00"],"y":{"dtype":"f8","bdata":"s1NGYpbHQkD9jsDwlF9BQJMrdfoflCtA6V\u002fG90AmRUDBg4TIL3pVQAAAAAAAAFlArrFjFy+5QkC3mOQjMLU5QAAAAAAAAAAA5h2O\u002fNf2PkARQ\u002f9VckpAQIv\u002fN+5r5ERA"},"type":"scatter"},{"customdata":{"dtype":"f8","bdata":"AocvrSkcYkDAhMYWV9hgQDhSb4nCv2JAkGWVXGvMYEAmFMpw8I1eQAbSqgPus2BAhXT9eQkmYUAgHug53ZxiQEYYxYdupk1A09VRLRKFU0AKHQHOzJRbQD6PHReWA1JA"},"hovertemplate":"ST: %{customdata:.1f} mg\u002fg (norm: %{y:.0f}%)\u003cextra\u003e\u003c\u002fextra\u003e","line":{"color":"#82c982","width":2},"marker":{"size":6},"mode":"lines+markers","name":"ST Value","x":["2023-08-15T00:00:00","2023-09-15T00:00:00","2023-10-15T00:00:00","2023-11-15T00:00:00","2023-12-15T00:00:00","2024-01-15T00:00:00","2024-02-15T00:00:00","2024-03-15T00:00:00","2024-04-15T00:00:00","2024-05-15T00:00:00","2024-07-15T00:00:00","2024-08-15T00:00:00"],"y":{"dtype":"f8","bdata":"2AMUzzmXV0DUlx3cHM1UQAAAAAAAAFlAOrjdAdOyVECtr4V3\u002fFdRQKW2NHfRfFRA3dKYVnR4VUAkAO25C7NYQAAAAAAAAAAAJ\u002f8Cbc60NECxLlVkdiFMQDlUKoc8ISxA"},"type":"scatter"},{"customdata":{"dtype":"f8","bdata":"5pOfArsPlT\u002fLBwAGXICWPzXSnn25RJM\u002fWVrDQ+3xlj+F3YtUkKabPxgVk7CJAZo\u002fO9\u002fUX5c8lj+Krf4k3fOTP9SMDb5slKc\u002fy+6GSPhAoz+RsAnfH1qbPzG6tZ1iX6U\u002f"},"hovertemplate":"N\u002fST: %{customdata:.4f} (norm: %{y:.0f}%)\u003cextra\u003e\u003c\u002fextra\u003e","line":{"color":"#ff8c00","width":4},"marker":{"size":9,"symbol":"diamond"},"mode":"lines+markers","name":"N\u002fST Ratio","x":["2023-08-15T00:00:00","2023-09-15T00:00:00","2023-10-15T00:00:00","2023-11-15T00:00:00","2023-12-15T00:00:00","2024-01-15T00:00:00","2024-02-15T00:00:00","2024-03-15T00:00:00","2024-04-15T00:00:00","2024-05-15T00:00:00","2024-07-15T00:00:00","2024-08-15T00:00:00"],"y":{"dtype":"f8","bdata":"S9VaudO2GUAQpHXJwS4nQAAAAAAAAAAA8Kr5hR5dKkDFLIBuoQ0+QNc7GKIYKDhAEKz2Fc9IJUAuH83Fg58DQAAAAAAAAFlA52Hxb64+UUCkF+88kfs8QNmoLMkPC1VA"},"type":"scatter"}],                        {"template":{"data":{"histogram2dcontour":[{"type":"histogram2dcontour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"choropleth":[{"type":"choropleth","colorbar":{"outlinewidth":0,"ticks":""}}],"histogram2d":[{"type":"histogram2d","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"heatmap":[{"type":"heatmap","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"contourcarpet":[{"type":"contourcarpet","colorbar":{"outlinewidth":0,"ticks":""}}],"contour":[{"type":"contour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"surface":[{"type":"surface","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"mesh3d":[{"type":"mesh3d","colorbar":{"outlinewidth":0,"ticks":""}}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"parcoords":[{"type":"parcoords","line":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolargl":[{"type":"scatterpolargl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"scattergeo":[{"type":"scattergeo","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolar":[{"type":"scatterpolar","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"scattergl":[{"type":"scattergl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatter3d":[{"type":"scatter3d","line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermap":[{"type":"scattermap","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermapbox":[{"type":"scattermapbox","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterternary":[{"type":"scatterternary","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattercarpet":[{"type":"scattercarpet","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"type":"carpet"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}],"barpolar":[{"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"pie":[{"automargin":true,"type":"pie"}]},"layout":{"autotypenumbers":"strict","colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"hovermode":"closest","hoverlabel":{"align":"left"},"paper_bgcolor":"white","plot_bgcolor":"#E5ECF6","polar":{"bgcolor":"#E5ECF6","angularaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"radialaxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"ternary":{"bgcolor":"#E5ECF6","aaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"baxis":{"gridcolor":"white","linecolor":"white","ticks":""},"caxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]]},"xaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"yaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"scene":{"xaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"yaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"zaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"geo":{"bgcolor":"white","landcolor":"#E5ECF6","subunitcolor":"white","showland":true,"showlakes":true,"lakecolor":"white"},"title":{"x":0.05},"mapbox":{"style":"light"}}},"annotations":[{"arrowhead":2,"ax":0,"ay":-30,"font":{"color":"#7fb3d5","size":10},"showarrow":true,"text":"N peaks (winter)","x":"2024-01-15T00:00:00","y":100.0},{"arrowhead":2,"ax":0,"ay":30,"font":{"color":"#82c982","size":10},"showarrow":true,"text":"ST drops (spring)","x":"2024-04-15T00:00:00","y":0.0},{"arrowhead":2,"ax":-70,"ay":-20,"font":{"color":"#ff8c00","size":10},"showarrow":true,"text":"Ratio rises →\u003cbr\u003eFertilization window","x":"2024-04-15T00:00:00","y":100.0}],"title":{"font":{"size":16},"text":"Normalized View - Recent Period (Aug 2023 - Aug 2024)\u003cbr\u003e\u003csup\u003eExcludes 2022 depleted year for cleaner seasonal pattern\u003c\u002fsup\u003e"},"xaxis":{"title":{"text":"Date"},"tickformat":"%b %Y","dtick":"M1"},"yaxis":{"title":{"text":"Normalized Value (%)"},"range":[0,105]},"legend":{"orientation":"h","yanchor":"bottom","y":1.02,"xanchor":"center","x":0.5},"height":550,"hovermode":"x unified"},                        {"responsive": true}                    )                };            </script>        </div>
+    </div>
+
+    <div class="warning-box" style="background: #fff3cd; border-left: 4px solid #ff8c00;">
+        <h4>The Critical Difference</h4>
+        <ul>
+            <li><strong style="color: #7fb3d5;">N Peaks in Winter:</strong> Nitrogen concentration reaches maximum
+            values in Nov-Feb, but this reflects reduced leaf growth (concentration effect),
+            <strong>NOT</strong> optimal fertilization timing.</li>
+
+            <li><strong style="color: #82c982;">ST Drops in Spring/Summer:</strong> Starch reserves decline as trees
+            mobilize carbohydrates for new growth - <strong>THIS</strong> signals actual fertilization need.</li>
+
+            <li><strong style="color: #ff8c00;">N/ST Ratio Captures Both:</strong> The ratio rises when ST drops,
+            correctly identifying the spring/summer fertilization window that N alone misses.</li>
+
+            <li><strong style="color: #ff8c00;">Steady Rise = Increased Demand:</strong> A steady rise in N/ST ratio
+            highlights the increased nitrogen demand during active growth and metabolic phases -
+            this is when fertilization is most effective.</li>
+        </ul>
+    </div>
+
+    <h2>Practical Implications</h2>
+
+    <div class="analysis-section">
+        <h4>For Agronomists and Growers</h4>
+        <table class="treatment-table" style="width: 100%;">
+            <tr>
+                <th>Metric</th>
+                <th>Peak Timing</th>
+                <th>Implication for Fertilization</th>
+            </tr>
+            <tr>
+                <td style="color: #7fb3d5; font-weight: bold;">N_Value alone</td>
+                <td>Winter (Nov-Feb)</td>
+                <td style="background: rgba(255, 230, 109, 0.3);">
+                    <strong>Misleading</strong> - High N in winter reflects concentration, not need
+                </td>
+            </tr>
+            <tr>
+                <td style="color: #82c982; font-weight: bold;">ST_Value</td>
+                <td>Fall (Sep-Nov)</td>
+                <td>
+                    Low ST in spring signals energy mobilization for growth
+                </td>
+            </tr>
+            <tr>
+                <td style="color: #ff8c00; font-weight: bold;">N/ST Ratio</td>
+                <td>Spring-Summer (Apr-Jul)</td>
+                <td style="background: rgba(200, 230, 201, 0.3);">
+                    <strong>Optimal</strong> - Rising ratio indicates true fertilization need
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="discovery-box">
+        <h3>Summary: Research Insights</h3>
+        <ul>
+            <li><strong>Year Effect:</strong> Environmental factors (climate, water availability) dominate
+            starch reserves, often overwhelming nitrogen treatment effects</li>
+
+            <li><strong>LNC Classification:</strong> UC Davis thresholds provide reliable benchmarks for
+            nitrogen status when adjusted for seasonal patterns</li>
+
+            <li><strong>N/ST Ratio Advantage:</strong> Combining N and ST measurements reveals metabolic
+            status and provides more accurate fertilization timing signals than N alone</li>
+
+            <li><strong>Optimal Timing:</strong> The N/ST ratio correctly identifies <strong>spring/summer</strong>
+            as the optimal fertilization window, which N alone would miss</li>
+        </ul>
+    </div>
+
+    <div class="ratio-highlight">
+        <h3>Conclusion</h3>
+        <p style="font-size: 1.2em;">
+        The N/ST ratio integrates nitrogen status with metabolic context, providing a more reliable
+        indicator for fertilization timing decisions. By accounting for both the nutrient supply (N)
+        and energy reserves (ST), this ratio reveals the plant's true physiological status and
+        fertilization needs.
+        </p>
+        <p style="font-size: 1.1em; font-weight: bold; color: #e65100;">
+        This finding has practical implications for precision agriculture: spectroscopy-based N/ST ratio
+        predictions can guide site-specific fertilization timing, optimizing both yield and resource efficiency.
+        </p>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,30 @@
+{
+  "locations": {
+    "Gilat": {
+      "lat": 31.3358,
+      "lon": 34.6536,
+      "description": "Gilat Research Station - Major agricultural research center in the Negev"
+    },
+    "Kedma": {
+      "lat": 31.6214,
+      "lon": 34.7847,
+      "description": "Kedma - Central Israel agricultural area"
+    },
+    "Kabri": {
+      "lat": 33.0167,
+      "lon": 35.1333,
+      "description": "Kabri - Northern Israel, Western Galilee"
+    },
+    "Kfar Menahem": {
+      "lat": 31.7333,
+      "lon": 34.8333,
+      "description": "Kfar Menahem - Coastal plain agricultural region"
+    }
+  },
+  "israel_bounds": {
+    "min_lat": 29.5,
+    "max_lat": 33.5,
+    "min_lon": 34.0,
+    "max_lon": 36.0
+  }
+}
