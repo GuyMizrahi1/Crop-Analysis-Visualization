@@ -3,10 +3,9 @@ Visualization 3: NPK Experiment Analysis
 
 This visualization presents the controlled NPK fertilization experiment
 conducted on citrus trees at Gilat Research Station. It includes:
-1. Treatment table with 5 nitrogen levels
+1. Treatment table with 5 nitrogen levels (with sample counts and date range)
 2. Sample collection timeline by treatment
-3. N/ST ratio explanation and motivation
-4. Treatment group comparison (scatter and box plots for N and ST)
+3. Combined scatter plot with centroids + ridgeline distributions for N and ST
 
 Author: Data Science Visualization Course Project
 """
@@ -15,6 +14,7 @@ import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
+from scipy import stats
 import os
 import sys
 from datetime import datetime
@@ -48,8 +48,8 @@ def load_npk_data():
 # VISUALIZATION FUNCTIONS
 # =============================================================================
 
-def create_treatment_table():
-    """Create HTML table for NPK treatments."""
+def create_treatment_table(df):
+    """Create HTML table for NPK treatments with sample counts and date range."""
     table_html = '''
     <table class="treatment-table" style="width: 100%; margin: 20px auto;">
         <tr>
@@ -57,7 +57,8 @@ def create_treatment_table():
             <th>N Level (kg/ha)</th>
             <th>Description</th>
             <th>Tree IDs</th>
-            <th>Replicates</th>
+            <th>Total Samples</th>
+            <th>Date Range</th>
         </tr>
     '''
 
@@ -67,13 +68,24 @@ def create_treatment_table():
         trees = NPK_TREATMENTS[treatment]
         n_level = treatment.replace('N', '')
 
+        # Get sample count and date range for this treatment
+        trt_df = df[df['treatment'] == treatment]
+        sample_count = len(trt_df)
+        if len(trt_df) > 0:
+            date_min = trt_df['parsed_date'].min().strftime('%b %Y')
+            date_max = trt_df['parsed_date'].max().strftime('%b %Y')
+            date_range = f"{date_min} - {date_max}"
+        else:
+            date_range = "N/A"
+
         table_html += f'''
         <tr>
             <td style="color: {color}; font-weight: bold; font-size: 1.1em;">{treatment}</td>
             <td>{n_level}</td>
             <td>{desc}</td>
             <td>{', '.join(map(str, trees))}</td>
-            <td>{len(trees)}</td>
+            <td>{sample_count}</td>
+            <td>{date_range}</td>
         </tr>
         '''
 
@@ -102,13 +114,13 @@ def create_timeline_chart(df):
 
     fig.update_layout(
         title=dict(
-            text="3.2 Sample Collection Timeline by Treatment<br><sup>Monthly sample counts for each nitrogen treatment level</sup>",
+            text="3.1 Sample Collection Timeline by Treatment<br><sup>Monthly sample counts for each nitrogen treatment level</sup>",
             font=dict(size=16)
         ),
         xaxis_title='Collection Date',
         yaxis_title='Number of Samples',
         barmode='group',
-        xaxis=dict(tickformat='%b %Y', dtick='M3'),
+        xaxis=dict(tickformat='%b %Y', dtick='M3', range=['2021-10-01', '2024-10-31']),
         legend=dict(
             orientation='h',
             yanchor='bottom',
@@ -124,105 +136,271 @@ def create_timeline_chart(df):
     return fig
 
 
-def create_treatment_comparison(df):
-    """Create treatment comparison with scatter plot and box plots."""
-    df_valid = df.dropna(subset=['N_Value', 'ST_Value']).copy()
+def hex_to_rgba(hex_color, opacity):
+    """Convert hex color to rgba string."""
+    hex_color = hex_color.lstrip('#')
+    r = int(hex_color[0:2], 16)
+    g = int(hex_color[2:4], 16)
+    b = int(hex_color[4:6], 16)
+    return f'rgba({r}, {g}, {b}, {opacity})'
 
+
+def create_combined_scatter_ridgeline(df):
+    """Create combined visualization with scatter plot (centroids) and ridgeline distributions.
+
+    Layout:
+    - Top: N_Value ridgeline (horizontal KDE distributions) - INTERACTIVE
+    - Center: Scatter plot of N_Value vs ST_Value with treatment centroids
+    - Right: ST_Value ridgeline (vertical KDE distributions) - INTERACTIVE
+
+    Interactivity:
+    - Click on ridge to toggle centroid marker on the SCATTER PLOT
+    - Multiple centroids can be shown simultaneously
+    - All ridges have high transparency to see through them
+    - Lower treatments (N10, N40) are drawn on top to show high distribution values
+    """
+    # Create subplots with custom layout
     fig = make_subplots(
         rows=2, cols=2,
-        specs=[[{"colspan": 2}, None], [{}, {}]],
-        subplot_titles=[
-            'N_Value vs ST_Value by Treatment',
-            'N_Value Distribution',
-            'ST_Value Distribution'
-        ],
-        vertical_spacing=0.15,
-        horizontal_spacing=0.1
+        column_widths=[0.8, 0.2],
+        row_heights=[0.28, 0.72],
+        horizontal_spacing=0.02,
+        vertical_spacing=0.02,
+        specs=[
+            [{"type": "xy"}, None],           # Top-left: N ridgeline, Top-right: empty
+            [{"type": "xy"}, {"type": "xy"}]  # Bottom-left: Scatter, Bottom-right: ST ridgeline
+        ]
     )
 
-    # Scatter plot with centroids
+    n_points = 150
+
+    # Get data ranges for consistent axes
+    n_min, n_max = df['N_Value'].min(), df['N_Value'].max()
+    st_min, st_max = df['ST_Value'].min(), df['ST_Value'].max()
+    n_padding = (n_max - n_min) * 0.1
+    st_padding = (st_max - st_min) * 0.1
+
+    n_range_vals = np.linspace(n_min - n_padding, n_max + n_padding, n_points)
+    st_range_vals = np.linspace(st_min - st_padding, st_max + st_padding, n_points)
+
+    # Calculate centroids for each treatment
+    centroids = {}
     for treatment in TREATMENT_ORDER:
-        treatment_data = df_valid[df_valid['treatment'] == treatment]
+        treatment_data = df[df['treatment'] == treatment]
         if len(treatment_data) > 0:
-            # Individual points
-            fig.add_trace(go.Scatter(
+            centroids[treatment] = {
+                'n_mean': treatment_data['N_Value'].mean(),
+                'n_median': treatment_data['N_Value'].median(),
+                'st_mean': treatment_data['ST_Value'].mean(),
+                'st_median': treatment_data['ST_Value'].median()
+            }
+
+    # =========================================================================
+    # SCATTER PLOT (bottom-left) - with hidden centroid markers
+    # =========================================================================
+    for treatment in TREATMENT_ORDER:
+        treatment_data = df[df['treatment'] == treatment]
+        if len(treatment_data) == 0:
+            continue
+
+        color = TREATMENT_COLORS[treatment]
+
+        # Add scatter points
+        fig.add_trace(
+            go.Scatter(
                 x=treatment_data['N_Value'],
                 y=treatment_data['ST_Value'],
                 mode='markers',
-                name=f'{treatment} (n={len(treatment_data)})',
-                marker=dict(
-                    color=TREATMENT_COLORS[treatment],
-                    size=6,
-                    opacity=0.6
-                ),
-                legendgroup=treatment,
-                hovertemplate=f'{treatment}<br>N: %{{x:.2f}}%<br>ST: %{{y:.1f}} mg/g<extra></extra>'
-            ), row=1, col=1)
-
-            # Centroid
-            centroid_n = treatment_data['N_Value'].mean()
-            centroid_st = treatment_data['ST_Value'].mean()
-            fig.add_trace(go.Scatter(
-                x=[centroid_n],
-                y=[centroid_st],
-                mode='markers',
-                name=f'{treatment} centroid',
-                marker=dict(
-                    color=TREATMENT_COLORS[treatment],
-                    size=18,
-                    symbol='x',
-                    line=dict(width=3, color='black')
-                ),
-                legendgroup=treatment,
-                showlegend=False,
-                hovertemplate=f'{treatment} Centroid<br>N: %{{x:.2f}}%<br>ST: %{{y:.1f}} mg/g<extra></extra>'
-            ), row=1, col=1)
-
-    # N_Value box plots
-    for treatment in TREATMENT_ORDER:
-        treatment_data = df[df['treatment'] == treatment]
-        if len(treatment_data) > 0:
-            fig.add_trace(go.Box(
-                y=treatment_data['N_Value'],
                 name=treatment,
-                marker_color=TREATMENT_COLORS[treatment],
-                legendgroup=treatment,
-                showlegend=False,
-                boxmean=True
-            ), row=2, col=1)
+                marker=dict(color=color, size=8, opacity=0.6),
+                hovertemplate=f'{treatment}<br>N: %{{x:.2f}}%<br>ST: %{{y:.1f}} mg/g<extra></extra>',
+                legendgroup=treatment
+            ),
+            row=2, col=1
+        )
 
-    # ST_Value box plots
+    # Add centroid markers on scatter plot (initially hidden) - one for each treatment
     for treatment in TREATMENT_ORDER:
-        treatment_data = df[df['treatment'] == treatment]
-        if len(treatment_data) > 0:
-            fig.add_trace(go.Box(
-                y=treatment_data['ST_Value'],
-                name=treatment,
-                marker_color=TREATMENT_COLORS[treatment],
-                legendgroup=treatment,
-                showlegend=False,
-                boxmean=True
-            ), row=2, col=2)
+        if treatment not in centroids:
+            continue
+        color = TREATMENT_COLORS[treatment]
+        n_mean = centroids[treatment]['n_mean']
+        st_mean = centroids[treatment]['st_mean']
 
-    fig.update_xaxes(title_text="N_Value (%)", row=1, col=1)
-    fig.update_yaxes(title_text="ST_Value (mg/g)", row=1, col=1)
-    fig.update_yaxes(title_text="N_Value (%)", row=2, col=1)
-    fig.update_yaxes(title_text="ST_Value (mg/g)", row=2, col=2)
+        # Centroid marker on scatter plot - diamond with label
+        fig.add_trace(
+            go.Scatter(
+                x=[n_mean],
+                y=[st_mean],
+                mode='markers+text',
+                marker=dict(symbol='diamond', size=18, color=color,
+                           line=dict(color='white', width=2)),
+                text=[f'{treatment}'],
+                textposition='top center',
+                textfont=dict(size=11, color=color, family='Arial Black'),
+                showlegend=False,
+                visible=False,
+                name=f'centroid_scatter_{treatment}',
+                hovertemplate=f'<b>{treatment} Centroid</b><br>N: {n_mean:.2f}%<br>ST: {st_mean:.1f} mg/g<extra></extra>'
+            ),
+            row=2, col=1
+        )
+
+    # =========================================================================
+    # N_VALUE RIDGELINE (top - horizontal KDEs)
+    # N10 closest to scatter (baseline=0), but drawn ON TOP of others
+    # High transparency so you can see through overlapping distributions
+    # =========================================================================
+    ridge_height = 0.50  # Height of each ridge
+    fill_opacity = 0.20  # High transparency to see through
+
+    # Position map: N10 at baseline 0 (closest to scatter), N150 at highest baseline
+    position_map = {t: i for i, t in enumerate(TREATMENT_ORDER)}
+
+    # Draw in reversed order so N10 is drawn last (on top)
+    draw_order = list(reversed(TREATMENT_ORDER))  # [N150, N100, N60, N30, N10]
+
+    for treatment in draw_order:
+        treatment_data = df[df['treatment'] == treatment]['N_Value'].dropna()
+        if len(treatment_data) < 3:
+            continue
+
+        try:
+            kde = stats.gaussian_kde(treatment_data)
+            density = kde(n_range_vals)
+            density = density / density.max() * ridge_height * 1.2
+        except:
+            continue
+
+        # Baseline position based on treatment order (N10=0, N40=1, N60=2, N100=3, N150=4)
+        pos = position_map[treatment]
+        y_baseline = pos * (ridge_height * 0.9)
+        y_values = y_baseline + density
+
+        color = TREATMENT_COLORS[treatment]
+        n_mean = centroids[treatment]['n_mean']
+
+        # Fill area - clickable with treatment info
+        fig.add_trace(
+            go.Scatter(
+                x=list(n_range_vals) + list(n_range_vals)[::-1],
+                y=list(y_values) + [y_baseline] * len(n_range_vals),
+                fill='toself',
+                fillcolor=hex_to_rgba(color, fill_opacity),
+                line=dict(color=color, width=1.5),
+                showlegend=False,
+                name=f'ridge_n_{treatment}',
+                hovertemplate=f'<b>{treatment}</b><br>Mean N: {n_mean:.2f}%<br>Click to show centroid on scatter plot<extra></extra>',
+                legendgroup=treatment,
+                meta={'treatment': treatment, 'type': 'ridge_n'}
+            ),
+            row=1, col=1
+        )
+
+    # =========================================================================
+    # ST_VALUE RIDGELINE (right - vertical KDEs, rotated 90 degrees)
+    # Same logic: N10 closest to scatter, drawn on top
+    # =========================================================================
+    for treatment in draw_order:
+        treatment_data = df[df['treatment'] == treatment]['ST_Value'].dropna()
+        if len(treatment_data) < 3:
+            continue
+
+        try:
+            kde = stats.gaussian_kde(treatment_data)
+            density = kde(st_range_vals)
+            density = density / density.max() * ridge_height
+        except:
+            continue
+
+        # Baseline position based on treatment order
+        pos = position_map[treatment]
+        x_baseline = pos * (ridge_height * 0.9)
+        x_values = x_baseline + density
+
+        color = TREATMENT_COLORS[treatment]
+        st_mean = centroids[treatment]['st_mean']
+
+        # Fill area (x and y swapped for vertical orientation)
+        fig.add_trace(
+            go.Scatter(
+                x=list(x_values) + [x_baseline] * len(st_range_vals),
+                y=list(st_range_vals) + list(st_range_vals)[::-1],
+                fill='toself',
+                fillcolor=hex_to_rgba(color, fill_opacity),
+                line=dict(color=color, width=1.5),
+                showlegend=False,
+                name=f'ridge_st_{treatment}',
+                hovertemplate=f'<b>{treatment}</b><br>Mean ST: {st_mean:.1f} mg/g<br>Click to show centroid on scatter plot<extra></extra>',
+                legendgroup=treatment,
+                meta={'treatment': treatment, 'type': 'ridge_st'}
+            ),
+            row=2, col=2
+        )
+
+    # =========================================================================
+    # LAYOUT UPDATES
+    # =========================================================================
+    # Scatter plot axes
+    fig.update_xaxes(
+        title_text="N_Value (%)",
+        range=[n_min - n_padding, n_max + n_padding],
+        showgrid=True,
+        gridcolor='rgba(0,0,0,0.1)',
+        row=2, col=1
+    )
+    fig.update_yaxes(
+        title_text="ST_Value (mg/g)",
+        range=[st_min - st_padding, st_max + st_padding],
+        showgrid=True,
+        gridcolor='rgba(0,0,0,0.1)',
+        row=2, col=1
+    )
+
+    # N ridgeline axes (top)
+    fig.update_xaxes(
+        range=[n_min - n_padding, n_max + n_padding],
+        showticklabels=False,
+        showgrid=False,
+        row=1, col=1
+    )
+    fig.update_yaxes(
+        showticklabels=False,
+        showgrid=False,
+        row=1, col=1
+    )
+
+    # ST ridgeline axes (right)
+    fig.update_xaxes(
+        showticklabels=False,
+        showgrid=False,
+        row=2, col=2
+    )
+    fig.update_yaxes(
+        range=[st_min - st_padding, st_max + st_padding],
+        showticklabels=False,
+        showgrid=False,
+        row=2, col=2
+    )
 
     fig.update_layout(
         title=dict(
-            text="3.4 Treatment Group Comparison<br><sup>Scatter plot shows N vs ST relationship | Box plots show distributions | X markers indicate group centroids</sup>",
+            text="3.2 Treatment Comparison: N_Value vs ST_Value with Distributions<br><sup>Scatter plot with marginal KDE distributions by treatment</sup>",
             font=dict(size=16)
         ),
-        height=800,
-        showlegend=True,
+        height=650,
+        autosize=True,
         legend=dict(
             orientation='h',
             yanchor='top',
             y=-0.08,
             xanchor='center',
-            x=0.5
-        )
+            x=0.5,
+            title='Treatment'
+        ),
+        plot_bgcolor='white',
+        showlegend=True,
+        margin=dict(l=50, r=50, t=100, b=100)
     )
 
     return fig
@@ -281,134 +459,95 @@ def generate_html_report(df):
     print("Generating visualizations...")
 
     # Create all components
-    treatment_table = create_treatment_table()
+    treatment_table = create_treatment_table(df)
     fig_timeline = create_timeline_chart(df)
-    fig_comparison = create_treatment_comparison(df)
-    summary_stats = create_summary_stats(df)
+    fig_combined = create_combined_scatter_ridgeline(df)
 
     # Convert to HTML
     plot_timeline = fig_timeline.to_html(full_html=False, include_plotlyjs='cdn')
-    plot_comparison = fig_comparison.to_html(full_html=False, include_plotlyjs=False)
+    plot_combined = fig_combined.to_html(full_html=False, include_plotlyjs=False)
+
+    # JavaScript for interactive ridge plot - toggle centroids on scatter plot
+    ridge_interactivity_js = """
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Wait for Plotly to render
+        setTimeout(function() {
+            // Find the combined plot div (second plotly graph)
+            const plotDivs = document.querySelectorAll('.js-plotly-plot');
+            if (plotDivs.length < 2) return;
+
+            const plotDiv = plotDivs[1];
+            const treatments = ['N10', 'N40', 'N60', 'N100', 'N150'];
+
+            // Track which centroids are currently visible (toggle state)
+            const centroidVisible = {};
+            treatments.forEach(t => centroidVisible[t] = false);
+
+            // Find trace indices for centroids on scatter plot
+            const centroidIndices = {};
+            plotDiv.data.forEach((trace, idx) => {
+                const name = trace.name || '';
+                treatments.forEach(t => {
+                    if (name === 'centroid_scatter_' + t) {
+                        centroidIndices[t] = idx;
+                    }
+                });
+            });
+
+            plotDiv.on('plotly_click', function(data) {
+                const clickedTrace = data.points[0];
+                const traceName = clickedTrace.data.name || '';
+
+                // Check if clicked on a ridge (N or ST)
+                let clickedTreatment = null;
+                treatments.forEach(t => {
+                    if (traceName.includes('ridge_') && traceName.includes(t)) {
+                        clickedTreatment = t;
+                    }
+                });
+
+                if (!clickedTreatment) return;
+
+                // Toggle the centroid visibility for this treatment
+                centroidVisible[clickedTreatment] = !centroidVisible[clickedTreatment];
+
+                // Update visibility for the centroid on scatter plot
+                const idx = centroidIndices[clickedTreatment];
+                if (idx !== undefined) {
+                    const visArray = new Array(plotDiv.data.length).fill(undefined);
+                    visArray[idx] = centroidVisible[clickedTreatment];
+                    Plotly.restyle(plotDiv, {visible: visArray});
+                }
+            });
+        }, 500);
+    });
+    </script>
+    """
 
     html_content = f"""<!DOCTYPE html>
 <html>
 <head>
-    <title>Visualization 3: NPK Experiment Analysis</title>
+    <title>Visualization 3: NPK Experiment</title>
     {HTML_STYLE}
 </head>
 <body>
-    <h1>NPK Experiment Analysis</h1>
-    <p class="subtitle">Controlled nitrogen fertilization study on citrus at Gilat Research Station</p>
-
-    <div class="intro-box">
-        <h3 style="margin-top: 0; border: none; padding-left: 0;">Experimental Design</h3>
-        <p>The NPK experiment is a <strong>controlled fertilization study</strong> conducted at Gilat Research Station
-        in the Negev region of Israel. Citrus trees were subjected to five different nitrogen (N) fertilization levels
-        to study the relationship between nitrogen input and plant chemistry.</p>
-
-        <p><strong>Research Objectives:</strong></p>
-        <ul>
-            <li>Quantify the effect of nitrogen fertilization on leaf chemistry</li>
-            <li>Establish relationships between N input and measurable plant responses</li>
-            <li>Develop spectroscopy-based methods for nitrogen status assessment</li>
-            <li>Identify optimal fertilization timing using the N/ST ratio</li>
-        </ul>
-    </div>
-
-    <h2>3.1 Treatment Groups</h2>
+    <h1>NPK Experiment: 5 Nitrogen Treatments on Citrus (Gilat Station)</h1>
+    <p class="subtitle">N10-N150 kg/ha | 5 trees per treatment | Measuring N% and Starch response</p>
 
     <div class="analysis-section">
-        <p>Five nitrogen treatment levels were established, ranging from severe deficiency (N10) to
-        excessive application (N150). Each treatment is replicated across 5 trees.</p>
         {treatment_table}
-
-        <div class="methodology">
-            <h4>Treatment Assignment</h4>
-            <p>Trees were randomly assigned to treatment groups to ensure statistical validity.
-            The N60 treatment represents the <strong>agronomic optimum</strong> based on established
-            citrus fertilization guidelines for the region.</p>
-        </div>
-    </div>
-
-    <h2>3.2 Sample Collection</h2>
-
-    <div class="analysis-section">
-        <p>Samples were collected at regular intervals throughout the experimental period to capture
-        seasonal variations in plant chemistry.</p>
         {plot_timeline}
     </div>
 
-    <h3>Summary Statistics</h3>
     <div class="analysis-section">
-        {summary_stats}
-    </div>
-
-    <h2>3.3 Why N/ST Ratio?</h2>
-
-    <div class="intro-box" style="background: linear-gradient(135deg, #fff3e0, #ffe0b2); border-color: #ff8c00;">
-        <h3 style="margin-top: 0; border: none; padding-left: 0; color: #e65100;">The Rationale for N/ST Ratio</h3>
-
-        <p>Traditional nitrogen status assessment relies solely on <strong>Leaf Nitrogen Content (LNC)</strong>.
-        However, this approach has limitations:</p>
-
-        <ul>
-            <li><strong>Concentration Effect:</strong> LNC peaks in winter when leaf growth slows,
-            not necessarily when the plant needs fertilization</li>
-            <li><strong>Missing Metabolic Context:</strong> LNC doesn't account for the plant's energy
-            reserves and metabolic state</li>
-        </ul>
-
-        <p>The <strong>N/ST ratio</strong> combines nitrogen status with starch reserves:</p>
-
-        <ul>
-            <li><strong>N_Value:</strong> Nitrogen content (%) - the nutrient supply</li>
-            <li><strong>ST_Value:</strong> Starch content (mg/g) - the energy reserves</li>
-            <li><strong>N/ST Ratio:</strong> When this ratio rises, it indicates either increasing N demand
-            or depleting energy reserves - both signals for fertilization need</li>
-        </ul>
-
-        <p style="font-weight: bold; color: #e65100;">The following visualizations explore how N and ST
-        respond to different fertilization levels, setting the stage for N/ST ratio analysis.</p>
-    </div>
-
-    <h2>3.4 Treatment Group Comparison</h2>
-
-    <div class="analysis-section">
-        <p>This visualization compares nitrogen (N_Value) and starch (ST_Value) across all treatment groups:</p>
-        <ul>
-            <li><strong>Scatter plot:</strong> Shows the relationship between N and ST for each treatment</li>
-            <li><strong>Centroids (X markers):</strong> Indicate the mean position of each treatment group</li>
-            <li><strong>Box plots:</strong> Show the distribution and variability within each treatment</li>
-        </ul>
-
-        {plot_comparison}
-
-        <div class="key-observations">
-            <h4>Key Observations</h4>
-            <ul>
-                <li><strong>N_Value Response:</strong> Higher nitrogen treatments (N100, N150) show elevated
-                leaf nitrogen content, as expected</li>
-                <li><strong>ST_Value Variance:</strong> Starch values show high variability across all treatments,
-                suggesting factors beyond nitrogen input affect starch reserves</li>
-                <li><strong>Treatment Overlap:</strong> Some overlap exists between treatment groups,
-                indicating individual tree variation and environmental effects</li>
-                <li><strong>Ceiling Effect:</strong> N100 and N150 show similar N_Value ranges,
-                suggesting a physiological upper limit to nitrogen accumulation</li>
-            </ul>
-        </div>
-    </div>
-
-    <div class="discovery-box">
-        <h3>Looking Ahead</h3>
-        <p>The high variance in ST_Value despite controlled nitrogen treatments raises an important question:</p>
-        <p style="font-size: 1.1em; font-weight: bold; color: #1b5e20;">
-        "If nitrogen treatment isn't driving ST variance, what is?"
+        <p style="font-size: 12px; color: #666; margin-bottom: 10px; text-align: center;">
+            <em>Click on any ridge distribution to toggle its centroid (mean) on the scatter plot. Multiple centroids can be shown simultaneously.</em>
         </p>
-        <p>This question leads us to the <strong>Year Effect Discovery</strong> in the next visualization,
-        where we uncover that environmental factors dominate starch reserves more than fertilization treatment.</p>
+        {plot_combined}
     </div>
 
-    <p class="timestamp">Report generated: {datetime.now().strftime('%Y-%m-%d %H:%M')}</p>
+    {ridge_interactivity_js}
 </body>
 </html>"""
 

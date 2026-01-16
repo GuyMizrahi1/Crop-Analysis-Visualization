@@ -53,8 +53,11 @@ def load_npk_data():
 # =============================================================================
 
 def create_thresholds_table():
-    """Create UC Davis thresholds table with corrected colors."""
+    """Create UC Davis thresholds table with colors matching graph bands."""
+    # Using the same colors as LNC_BAND_COLORS for consistency
     table_html = '''
+    <h3 style="color: #1B5E20; margin-bottom: 10px;">5.1 UC Davis LNC Thresholds</h3>
+    <p style="margin-bottom: 15px; color: #555;">UC Davis provides October reference values. We extended these with monthly seasonal adjustment factors.</p>
     <table class="treatment-table" style="width: 80%; margin: 20px auto;">
         <tr>
             <th>LNC Category</th>
@@ -62,35 +65,35 @@ def create_thresholds_table():
             <th>Description</th>
             <th>Agronomic Implication</th>
         </tr>
-        <tr style="background: rgba(30, 144, 255, 0.3);">
-            <td style="font-weight: bold; color: #1E90FF;">Deficient</td>
-            <td>&lt; 2.64%</td>
-            <td>Severe nitrogen deficiency</td>
-            <td>Immediate fertilization required</td>
+        <tr style="background: rgba(27, 94, 32, 0.25);">
+            <td style="font-weight: bold; color: #1B5E20;">Excess</td>
+            <td>&gt; 3.48%</td>
+            <td>Excessive nitrogen</td>
+            <td>Reduce fertilization to avoid waste</td>
         </tr>
-        <tr style="background: rgba(135, 206, 250, 0.3);">
-            <td style="font-weight: bold; color: #87CEEB;">Low</td>
-            <td>2.64 - 2.88%</td>
-            <td>Suboptimal nitrogen levels</td>
-            <td>Consider supplemental fertilization</td>
-        </tr>
-        <tr style="background: rgba(78, 205, 196, 0.3);">
-            <td style="font-weight: bold; color: #4ECDC4;">Optimum</td>
-            <td>2.88 - 3.24%</td>
-            <td>Ideal range for citrus</td>
-            <td>Maintain current program</td>
-        </tr>
-        <tr style="background: rgba(255, 165, 0, 0.3);">
-            <td style="font-weight: bold; color: #FFA500;">High</td>
+        <tr style="background: rgba(56, 142, 60, 0.25);">
+            <td style="font-weight: bold; color: #2E7D32;">High</td>
             <td>3.24 - 3.48%</td>
             <td>Above optimal</td>
             <td>Monitor, may reduce fertilization</td>
         </tr>
-        <tr style="background: rgba(255, 107, 107, 0.3);">
-            <td style="font-weight: bold; color: #FF6B6B;">Excess</td>
-            <td>&gt; 3.48%</td>
-            <td>Excessive nitrogen</td>
-            <td>Reduce fertilization to avoid waste</td>
+        <tr style="background: rgba(76, 175, 80, 0.25);">
+            <td style="font-weight: bold; color: #388E3C;">Optimum</td>
+            <td>2.88 - 3.24%</td>
+            <td>Ideal range for citrus</td>
+            <td>Maintain current program</td>
+        </tr>
+        <tr style="background: rgba(129, 199, 132, 0.25);">
+            <td style="font-weight: bold; color: #4CAF50;">Low</td>
+            <td>2.64 - 2.88%</td>
+            <td>Suboptimal nitrogen levels</td>
+            <td>Consider supplemental fertilization</td>
+        </tr>
+        <tr style="background: rgba(200, 230, 201, 0.25);">
+            <td style="font-weight: bold; color: #66BB6A;">Deficient</td>
+            <td>&lt; 2.64%</td>
+            <td>Severe nitrogen deficiency</td>
+            <td>Immediate fertilization required</td>
         </tr>
     </table>
     '''
@@ -156,7 +159,8 @@ def create_lnc_classification_chart(df):
 
     fig = go.Figure()
 
-    BOUNDARY_LINE_COLOR = 'rgba(60, 60, 60, 0.7)'
+    BOUNDARY_LINE_COLOR = 'rgba(80, 80, 80, 0.5)'
+    LINE_WIDTH = 0.5  # Very thin lines
     LINE_SHAPE = 'spline'
 
     # Add threshold bands (bottom to top)
@@ -171,7 +175,7 @@ def create_lnc_classification_chart(df):
     fig.add_trace(go.Scatter(
         x=monthly_dates, y=t1_values,
         mode='lines', name='Deficient (< 2.64%)',
-        line=dict(color=BOUNDARY_LINE_COLOR, width=1.5, shape=LINE_SHAPE),
+        line=dict(color=BOUNDARY_LINE_COLOR, width=LINE_WIDTH, shape=LINE_SHAPE),
         fill='tonexty', fillcolor=LNC_BAND_COLORS['Deficient'],
         hovertemplate='Deficient/Low boundary: %{y:.2f}%<extra></extra>'
     ))
@@ -180,7 +184,7 @@ def create_lnc_classification_chart(df):
     fig.add_trace(go.Scatter(
         x=monthly_dates, y=t2_values,
         mode='lines', name='Low (2.64-2.88%)',
-        line=dict(color=BOUNDARY_LINE_COLOR, width=1.5, shape=LINE_SHAPE),
+        line=dict(color=BOUNDARY_LINE_COLOR, width=LINE_WIDTH, shape=LINE_SHAPE),
         fill='tonexty', fillcolor=LNC_BAND_COLORS['Low'],
         hovertemplate='Low/Optimum boundary: %{y:.2f}%<extra></extra>'
     ))
@@ -189,7 +193,7 @@ def create_lnc_classification_chart(df):
     fig.add_trace(go.Scatter(
         x=monthly_dates, y=t3_values,
         mode='lines', name='Optimum (2.88-3.24%)',
-        line=dict(color=BOUNDARY_LINE_COLOR, width=1.5, shape=LINE_SHAPE),
+        line=dict(color=BOUNDARY_LINE_COLOR, width=LINE_WIDTH, shape=LINE_SHAPE),
         fill='tonexty', fillcolor=LNC_BAND_COLORS['Optimum'],
         hovertemplate='Optimum/High boundary: %{y:.2f}%<extra></extra>'
     ))
@@ -198,7 +202,7 @@ def create_lnc_classification_chart(df):
     fig.add_trace(go.Scatter(
         x=monthly_dates, y=t4_values,
         mode='lines', name='High (3.24-3.48%)',
-        line=dict(color=BOUNDARY_LINE_COLOR, width=1.5, shape=LINE_SHAPE),
+        line=dict(color=BOUNDARY_LINE_COLOR, width=LINE_WIDTH, shape=LINE_SHAPE),
         fill='tonexty', fillcolor=LNC_BAND_COLORS['High'],
         hovertemplate='High/Excess boundary: %{y:.2f}%<extra></extra>'
     ))
@@ -246,7 +250,7 @@ def create_lnc_classification_chart(df):
 
     fig.update_layout(
         title=dict(
-            text="5.2 LNC Status Classification (Aug 2022 - Aug 2024)<br><sup>UC Davis October thresholds scaled by seasonal pattern | Actual observations shown</sup>",
+            text="5.2 LNC Classification: N60-N150 converge in Optimum range throughout 2-year period<br><sup>Higher fertilization (N100, N150) does not elevate LNC above optimal | Diminishing returns above N60</sup>",
             font=dict(size=16)
         ),
         xaxis=dict(
@@ -283,7 +287,6 @@ def generate_html_report(df):
 
     # Create all components
     thresholds_table = create_thresholds_table()
-    seasonal_table = create_seasonal_factors_table()
     fig_classification = create_lnc_classification_chart(df)
 
     # Convert to HTML
@@ -292,103 +295,20 @@ def generate_html_report(df):
     html_content = f"""<!DOCTYPE html>
 <html>
 <head>
-    <title>Visualization 5: LNC Status Classification</title>
+    <title>Visualization 5: LNC Classification</title>
     {HTML_STYLE}
 </head>
 <body>
-    <h1>LNC Status Classification</h1>
-    <p class="subtitle">Leaf Nitrogen Content assessment using UC Davis thresholds</p>
-
-    <div class="intro-box">
-        <h3 style="margin-top: 0; border: none; padding-left: 0;">Understanding LNC Classification</h3>
-        <p><strong>Leaf Nitrogen Content (LNC)</strong> is the standard measure for assessing plant nitrogen status.
-        The University of California, Davis has established reference thresholds for citrus based on
-        extensive research and field trials.</p>
-
-        <p>These thresholds vary seasonally due to:</p>
-        <ul>
-            <li><strong>Dilution effect:</strong> Rapid leaf growth in spring dilutes nitrogen concentration</li>
-            <li><strong>Concentration effect:</strong> Slower growth in winter concentrates nitrogen</li>
-            <li><strong>Phenological timing:</strong> Nitrogen demand varies with growth stages</li>
-        </ul>
-    </div>
-
-    <h2>5.1 UC Davis Thresholds</h2>
+    <h1>LNC Classification: All treatments above N60 follow the Optimum band in UC Davis seasonal pattern</h1>
+    <p class="subtitle">N60, N100, and N150 all cluster in Optimum range | Over-fertilizing doesn't increase leaf N% beyond optimal levels</p>
 
     <div class="analysis-section">
-        <p>The following thresholds are based on October reference values (when seasonal variation is minimal):</p>
         {thresholds_table}
-
-        <div class="methodology">
-            <h4>Color Coding Rationale</h4>
-            <ul>
-                <li><span style="color: #1E90FF; font-weight: bold;">Blue = Deficient/Low</span> - Cold colors indicate deficiency, signaling need for action</li>
-                <li><span style="color: #4ECDC4; font-weight: bold;">Teal = Optimum</span> - Calm, balanced color for ideal status</li>
-                <li><span style="color: #FFA500; font-weight: bold;">Orange = High</span> - Warm colors indicate excess</li>
-                <li><span style="color: #FF6B6B; font-weight: bold;">Red = Excess</span> - Alert color for over-fertilization</li>
-            </ul>
-        </div>
     </div>
 
-    <h3>Seasonal Adjustment Factors</h3>
-
     <div class="analysis-section">
-        <p>Thresholds are adjusted monthly based on seasonal nitrogen dynamics:</p>
-        {seasonal_table}
-
-        <div class="key-observations">
-            <h4>Seasonal Pattern</h4>
-            <ul>
-                <li><strong>Winter (Dec-Feb):</strong> Factors ~1.08-1.12 (higher thresholds)</li>
-                <li><strong>Spring (Mar-May):</strong> Factors ~0.91-1.02 (lower thresholds, especially May)</li>
-                <li><strong>Summer (Jun-Aug):</strong> Factors ~0.92-1.02 (variable)</li>
-                <li><strong>Fall (Sep-Nov):</strong> Factors ~1.00-1.09 (returning to baseline)</li>
-            </ul>
-        </div>
-    </div>
-
-    <h2>5.2 LNC Status Classification</h2>
-
-    <div class="analysis-section">
-        <p>The following visualization shows how each treatment group's nitrogen levels compare
-        against the seasonally-adjusted UC Davis thresholds:</p>
         {plot_classification}
-
-        <div class="key-observations">
-            <h4>Key Observations</h4>
-            <ul>
-                <li><strong>Ceiling Effect:</strong> High-N treatments (N100, N150) cluster together in the Excess zone,
-                suggesting a physiological upper limit to nitrogen accumulation in leaves regardless of fertilization rate</li>
-                <li><strong>Treatment Separation:</strong> Lower treatments (N10, N40, N60) show clearer differentiation,
-                with N10 occasionally dropping into the Low/Optimum zones during spring months</li>
-                <li><strong>Seasonal Wave:</strong> All treatments follow the same seasonal wave pattern - higher in winter,
-                lower in spring/early summer - validating the seasonal adjustment approach</li>
-                <li><strong>Optimum Range:</strong> N60 (the agronomic optimum treatment) largely stays within or
-                above the Optimum range throughout the year</li>
-            </ul>
-        </div>
     </div>
-
-    <div class="warning-box">
-        <h4>Limitation of LNC-Only Assessment</h4>
-        <p>While LNC classification is valuable, it has an important limitation:</p>
-        <p><strong>LNC peaks in winter</strong> when leaf growth slows, not necessarily when the plant
-        needs fertilization. This "concentration effect" can be misleading for fertilization timing decisions.</p>
-        <p>This is why we explore the <strong>N/ST ratio</strong> in the next visualization - it combines
-        nitrogen status with starch reserves to provide a more complete picture of plant metabolic status.</p>
-    </div>
-
-    <div class="discovery-box">
-        <h3>Summary: LNC Classification Insights</h3>
-        <ul>
-            <li><strong>UC Davis thresholds are reliable</strong> when adjusted for seasonal patterns</li>
-            <li><strong>Treatment response is clear:</strong> Higher N fertilization → higher LNC (up to a ceiling)</li>
-            <li><strong>Seasonal adjustment is essential:</strong> Raw LNC values without seasonal context can mislead</li>
-            <li><strong>LNC alone is insufficient:</strong> For fertilization timing, we need additional metrics like the N/ST ratio</li>
-        </ul>
-    </div>
-
-    <p class="timestamp">Report generated: {datetime.now().strftime('%Y-%m-%d %H:%M')}</p>
 </body>
 </html>"""
 

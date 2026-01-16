@@ -22,7 +22,6 @@ The visualizations progressively build this narrative:
 ```
 Crop Analysis - Viausalization Final Project/
 ├── README.md                           # This file
-├── CLAUDE.md                           # Development context
 ├── data/                               # Datasets
 │   ├── unified_dataset.parquet        # Main crop dataset
 │   ├── npk_5_treatments_samples.csv   # NPK experiment data
