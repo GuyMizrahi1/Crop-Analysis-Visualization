@@ -56,13 +56,14 @@ YEAR_COLORS = {
 YEAR_ORDER = [2021, 2022, 2023, 2024]
 
 # LNC (Leaf Nitrogen Content) band colors
-# Note: Colors are inverted from original - Blue for deficient, Red for excess
+# Single hue gradient (green) - lighter = deficient, darker = excess
+# More transparent for reduced cognitive load
 LNC_BAND_COLORS = {
-    'Deficient': 'rgba(30, 144, 255, 0.25)',    # Blue (Dodger Blue)
-    'Low': 'rgba(135, 206, 250, 0.25)',         # Light Blue (Light Sky Blue)
-    'Optimum': 'rgba(78, 205, 196, 0.25)',      # Teal
-    'High': 'rgba(255, 165, 0, 0.25)',          # Orange
-    'Excess': 'rgba(255, 107, 107, 0.25)'       # Red (Salmon)
+    'Deficient': 'rgba(200, 230, 201, 0.25)',    # Very light green
+    'Low': 'rgba(129, 199, 132, 0.25)',          # Light green
+    'Optimum': 'rgba(76, 175, 80, 0.25)',        # Medium green
+    'High': 'rgba(56, 142, 60, 0.25)',           # Dark green
+    'Excess': 'rgba(27, 94, 32, 0.25)'           # Very dark green
 }
 
 # UC Davis October reference thresholds for Citrus (scaled by 1.2)

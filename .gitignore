@@ -1,7 +1,3 @@
-# Claude Code files
-CLAUDE.md
-.claude/
-
 # Large data files (too large for GitHub)
 data/unified_dataset.parquet
 data/spectral_data.csv

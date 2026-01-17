@@ -22,7 +22,9 @@ The visualizations progressively build this narrative:
 ```
 Crop Analysis - Viausalization Final Project/
 ├── README.md                           # This file
-├── CLAUDE.md                           # Development context
+├── docs/                               # Project documentation
+│   ├── crop_analysis_visualization_report.pdf   # Full report (Hebrew)
+│   └── crop_analysis_visualization_report.docx  # Editable version
 ├── data/                               # Datasets
 │   ├── unified_dataset.parquet        # Main crop dataset
 │   ├── npk_5_treatments_samples.csv   # NPK experiment data
@@ -32,22 +34,28 @@ Crop Analysis - Viausalization Final Project/
 │   └── config.py                       # Colors, styling, constants
 ├── visualization_1_data_collection/    # Viz 1: Data Collection Story
 │   ├── generate_data_collection_story.py
-│   └── data_collection_story.html
+│   ├── data_collection_story.html
+│   └── snapshots/                      # Screenshots
 ├── visualization_2_spectral_explorer/  # Viz 2: Spectral Data Explorer
 │   ├── generate_spectral_explorer.py
-│   └── spectral_explorer.html
+│   ├── spectral_explorer.html
+│   └── snapshots/
 ├── visualization_3_npk_experiment/     # Viz 3: NPK Experiment Analysis
 │   ├── generate_npk_experiment.py
-│   └── npk_experiment.html
+│   ├── npk_experiment.html
+│   └── snapshots/
 ├── visualization_4_st_variance/        # Viz 4: ST Variance Analysis
 │   ├── generate_st_variance_analysis.py
-│   └── st_variance_analysis.html
+│   ├── st_variance_analysis.html
+│   └── snapshots/
 ├── visualization_5_lnc_classification/ # Viz 5: LNC Status Classification
 │   ├── generate_lnc_classification.py
-│   └── lnc_classification.html
+│   ├── lnc_classification.html
+│   └── snapshots/
 └── visualization_6_nst_ratio_analysis/ # Viz 6: N/ST Ratio Analysis
     ├── generate_nst_ratio_analysis.py
-    └── nst_ratio_analysis.html
+    ├── nst_ratio_analysis.html
+    └── snapshots/
 ```
 
 ## Quick Start
@@ -82,6 +90,14 @@ Open the generated HTML files in any web browser:
 - `visualization_4_st_variance/st_variance_analysis.html`
 - `visualization_5_lnc_classification/lnc_classification.html`
 - `visualization_6_nst_ratio_analysis/nst_ratio_analysis.html`
+
+## Documentation
+
+A comprehensive project report is available in the `docs/` folder:
+- **PDF Report**: `docs/crop_analysis_visualization_report.pdf` - Full documentation in Hebrew
+- **Word Document**: `docs/crop_analysis_visualization_report.docx` - Editable version
+
+Each visualization folder also contains a `snapshots/` subfolder with screenshots of all charts.
 
 ## Visualization Details
 
@@ -120,6 +136,26 @@ Open the generated HTML files in any web browser:
 - **Full period view** (Aug 2022 - Aug 2024)
 - **Recent period view** (excluding 2022 anomaly)
 - Key insight: Ratio rises when ST drops = true fertilization signal
+
+## Screenshots Preview
+
+### 1. Data Collection - Israel Map
+![Israel Map](visualization_1_data_collection/snapshots/3rd_snapshot_israel_map.png)
+
+### 2. Spectral Explorer - All Samples View
+![Spectral Signatures](visualization_2_spectral_explorer/snapshots/1st_snapshot_spectral_all_samples.png)
+
+### 3. NPK Experiment - Scatter & Ridgeline
+![NPK Scatter](visualization_3_npk_experiment/snapshots/2nd_snapshot_scatter_ridgeline.png)
+
+### 4. ST Variance - Timeline by Treatment
+![ST Timeline](visualization_4_st_variance/snapshots/2nd_snapshot_st_timeline_by_treatment.png)
+
+### 5. LNC Classification - Timeline with Thresholds
+![LNC Classification](visualization_5_lnc_classification/snapshots/2nd_snapshot_lnc_classification_timeline.png)
+
+### 6. N/ST Ratio - Normalized Comparison
+![NST Ratio](visualization_6_nst_ratio_analysis/snapshots/1st_snapshot_normalized_nst_ratio.png)
 
 ## Scientific Background
 

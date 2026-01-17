@@ -126,22 +126,28 @@ def create_timeline_chart(df):
 
     fig.update_layout(
         title=dict(
-            text="1.1 Timeline of Sample Collection<br><sup>Monthly sample counts by crop type</sup>",
-            font=dict(size=18)
+            text="1.1 Sample Leaves Collection Timeline: Monthly counts by crop (2021-2024)",
+            font=dict(size=16)
         ),
         xaxis_title='Collection Date',
         yaxis_title='Number of Samples',
         barmode='group',
-        xaxis=dict(tickformat='%b %Y', dtick='M3'),
+        xaxis=dict(
+            tickformat='%b %Y',
+            dtick='M3',
+            range=['2018-04-01', '2024-10-31'],
+            tickangle=-45
+        ),
         legend=dict(
             orientation='h',
-            yanchor='bottom',
-            y=1.02,
+            yanchor='top',
+            y=-0.35,
             xanchor='center',
             x=0.5,
             title='Crop Type'
         ),
         height=500,
+        margin=dict(b=150),
         hovermode='x unified'
     )
 
@@ -181,8 +187,8 @@ def create_seasonal_distribution(df):
 
     fig.update_layout(
         title=dict(
-            text="1.2 Seasonal Sample Distribution<br><sup>Monthly sample counts by crop (all years combined)</sup>",
-            font=dict(size=18)
+            text="1.2 Seasonal Distribution (DOY): Aggregated by Day-of-Year to reveal seasonal patterns<br><sup>Citrus has full 12-month coverage (150+ samples/month) --> Primary focus for subsequent analysis</sup>",
+            font=dict(size=16)
         ),
         xaxis_title='Month',
         yaxis_title='Number of Samples',
@@ -191,12 +197,13 @@ def create_seasonal_distribution(df):
         height=500,
         legend=dict(
             orientation='h',
-            yanchor='bottom',
-            y=1.02,
+            yanchor='top',
+            y=-0.35,
             xanchor='center',
             x=0.5,
             title='Crop Type'
         ),
+        margin=dict(b=150),
         hovermode='x unified'
     )
 
@@ -204,62 +211,63 @@ def create_seasonal_distribution(df):
 
 
 def create_israel_map_html(df):
-    """Create geographic distribution map of Israel using Leaflet.js."""
+    """Create geographic distribution map of Israel with circles sized by sample count.
+
+    Labels are positioned OUTSIDE circles with arrows pointing to them.
+    Circles have high transparency to show overlapping.
+    """
     locations_data = load_israel_locations()
 
-    # Calculate sample counts per location and crop
-    location_crop_counts = df.groupby(['parsed_location', 'parsed_crop']).size().reset_index(name='count')
-
-    # Get total counts per location for sizing
+    # Get total counts per location
     location_totals = df.groupby('parsed_location').size().reset_index(name='total')
-
-    # Prepare marker data for JavaScript
-    markers_data = []
-    for _, row in location_crop_counts.iterrows():
-        loc = row['parsed_location']
-        crop = row['parsed_crop']
-        count = row['count']
-        if loc in locations_data['locations']:
-            loc_info = locations_data['locations'][loc]
-            markers_data.append({
-                'lat': loc_info['lat'],
-                'lon': loc_info['lon'],
-                'location': loc,
-                'crop': crop,
-                'count': count,
-                'color': CROP_COLORS.get(crop, '#888888')
-            })
 
     # Location totals for labels
     loc_totals = {}
     for _, row in location_totals.iterrows():
         loc_totals[row['parsed_location']] = row['total']
 
-    # Generate JavaScript marker data
-    markers_js = json.dumps(markers_data)
+    # Get crop distribution per location for pie charts
+    crop_distribution = df.groupby(['parsed_location', 'parsed_crop']).size().unstack(fill_value=0)
+    crop_dist_dict = {}
+    for loc in crop_distribution.index:
+        crop_dist_dict[loc] = {}
+        for crop in ['Citrus', 'Almond', 'Avocado', 'Vine']:
+            if crop in crop_distribution.columns:
+                crop_dist_dict[loc][crop] = int(crop_distribution.loc[loc, crop])
+            else:
+                crop_dist_dict[loc][crop] = 0
+
+    # Generate JavaScript data
     locations_js = json.dumps(locations_data['locations'])
     loc_totals_js = json.dumps(loc_totals)
-    crop_colors_js = json.dumps(CROP_COLORS)
+    crop_dist_js = json.dumps(crop_dist_dict)
+
+    # Label offsets for each location (to position labels outside circles)
+    # Format: {location: {x_offset, y_offset, arrow_direction, padding, zIndex, latOffset, lonOffset, rotation}}
+    # Padding is customized based on city name length
+    # zIndex controls stacking order (higher = on top)
+    # latOffset/lonOffset shift the pie chart position (positive lat = north)
+    # rotation: degrees to rotate pie chart (negative = counter-clockwise)
+    label_offsets = {
+        'Kabri': {'x': 100, 'y': -15, 'arrow': 'left', 'padding': '8px 14px', 'zIndex': 100, 'latOffset': 0, 'lonOffset': 0, 'rotation': 0},
+        'Kfar Menahem': {'x': -220, 'y': -20, 'arrow': 'right', 'padding': '8px 20px', 'zIndex': 300, 'latOffset': 0.02, 'lonOffset': 0, 'rotation': 0},
+        'Kedma': {'x': 110, 'y': -15, 'arrow': 'left', 'padding': '8px 14px', 'zIndex': 200, 'latOffset': -0.06, 'lonOffset': 0, 'rotation': 0},
+        'Gilat': {'x': -180, 'y': -15, 'arrow': 'right', 'padding': '8px 14px', 'zIndex': 100, 'latOffset': -0.06, 'lonOffset': 0, 'rotation': -60}
+    }
+    label_offsets_js = json.dumps(label_offsets)
 
     map_html = f'''
-    <div id="israel-map" style="height: 600px; width: 100%; border-radius: 8px; margin: 20px 0;"></div>
-    <div style="display: flex; justify-content: center; gap: 30px; margin-top: 15px; flex-wrap: wrap;">
-        <div style="display: flex; align-items: center; gap: 8px;">
-            <div style="width: 16px; height: 16px; border-radius: 50%; background: #E69F00;"></div>
-            <span>Citrus</span>
-        </div>
-        <div style="display: flex; align-items: center; gap: 8px;">
-            <div style="width: 16px; height: 16px; border-radius: 50%; background: #8B4513;"></div>
-            <span>Almond</span>
-        </div>
-        <div style="display: flex; align-items: center; gap: 8px;">
-            <div style="width: 16px; height: 16px; border-radius: 50%; background: #009E73;"></div>
-            <span>Avocado</span>
-        </div>
-        <div style="display: flex; align-items: center; gap: 8px;">
-            <div style="width: 16px; height: 16px; border-radius: 50%; background: #CC79A7;"></div>
-            <span>Vine</span>
-        </div>
+    <style>
+        .count-label-single {{ pointer-events: none !important; }}
+        .count-label-single * {{ pointer-events: none !important; }}
+    </style>
+    <div id="israel-map" style="height: 550px; width: 550px; border-radius: 8px; margin: 0;"></div>
+    <div id="crop-info-panel" style="display: none; position: absolute; top: 50px; left: -320px; background: rgba(255,255,255,0.98); padding: 15px; border-radius: 8px; box-shadow: 0 2px 12px rgba(0,0,0,0.2); z-index: 1000; min-width: 200px;"></div>
+    <div style="display: flex; justify-content: center; gap: 25px; margin-top: 15px; font-size: 14px;">
+        <span><span style="display: inline-block; width: 14px; height: 14px; border-radius: 50%; background: #E69F00; margin-right: 6px; vertical-align: middle;"></span>Citrus</span>
+        <span><span style="display: inline-block; width: 14px; height: 14px; border-radius: 50%; background: #8B4513; margin-right: 6px; vertical-align: middle;"></span>Almond</span>
+        <span><span style="display: inline-block; width: 14px; height: 14px; border-radius: 50%; background: #009E73; margin-right: 6px; vertical-align: middle;"></span>Avocado</span>
+        <span><span style="display: inline-block; width: 14px; height: 14px; border-radius: 50%; background: #CC79A7; margin-right: 6px; vertical-align: middle;"></span>Vine</span>
     </div>
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -267,94 +275,312 @@ def create_israel_map_html(df):
 
     <script>
         (function() {{
-            const markersData = {markers_js};
             const locationsData = {locations_js};
             const locTotals = {loc_totals_js};
-            const cropColors = {crop_colors_js};
+            const cropDist = {crop_dist_js};
+            const labelOffsets = {label_offsets_js};
 
-            // Initialize map centered on Israel
+            // Crop colors matching the project color scheme
+            const cropColors = {{
+                'Citrus': '#E69F00',
+                'Almond': '#8B4513',
+                'Avocado': '#009E73',
+                'Vine': '#CC79A7'
+            }};
+
+            // State: track which locations are showing detailed view
+            const locationStates = {{}};
+            Object.keys(locationsData).forEach(loc => locationStates[loc] = 'total');
+
+            // Store references to markers for updating
+            const pieMarkers = {{}};
+            const countMarkers = {{}};
+
+            // Function to create SVG pie chart with clickable segments
+            function createPieChartSvg(cropData, radius, locName, showLabels = false) {{
+                const total = Object.values(cropData).reduce((a, b) => a + b, 0);
+                if (total === 0) return '';
+
+                const cx = radius;
+                const cy = radius;
+                // Apply rotation offset for this location (default -60 = start from top)
+                const rotationOffset = labelOffsets[locName]?.rotation || 0;
+                let startAngle = -60 + rotationOffset;
+
+                let svg = `<svg width="${{radius*2}}" height="${{radius*2}}" viewBox="0 0 ${{radius*2}} ${{radius*2}}" style="display: block; cursor: pointer;">`;
+                svg += `<circle cx="${{cx}}" cy="${{cy}}" r="${{radius-1}}" fill="white" stroke="white" stroke-width="2"/>`;
+
+                const crops = ['Citrus', 'Almond', 'Avocado', 'Vine'];
+                const activeCrops = crops.filter(crop => (cropData[crop] || 0) > 0);
+
+                if (activeCrops.length === 1) {{
+                    const crop = activeCrops[0];
+                    const count = cropData[crop];
+                    svg += `<circle cx="${{cx}}" cy="${{cy}}" r="${{radius-2}}" fill="${{cropColors[crop]}}" stroke="white" stroke-width="0.5"
+                            data-crop="${{crop}}" data-location="${{locName}}" class="pie-segment" style="cursor: pointer;"/>`;
+                    if (showLabels) {{
+                        svg += `<text x="${{cx}}" y="${{cy}}" text-anchor="middle" dominant-baseline="middle"
+                                fill="white" font-size="14" font-weight="bold" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.8); pointer-events: none;">${{count}}</text>`;
+                    }}
+                }} else {{
+                    const labelPositions = [];
+                    crops.forEach(crop => {{
+                        const count = cropData[crop] || 0;
+                        if (count > 0) {{
+                            const angle = (count / total) * 360;
+                            const endAngle = startAngle + angle;
+                            const startRad = (startAngle * Math.PI) / 180;
+                            const endRad = (endAngle * Math.PI) / 180;
+                            const x1 = cx + (radius - 2) * Math.cos(startRad);
+                            const y1 = cy + (radius - 2) * Math.sin(startRad);
+                            const x2 = cx + (radius - 2) * Math.cos(endRad);
+                            const y2 = cy + (radius - 2) * Math.sin(endRad);
+                            const largeArc = angle > 180 ? 1 : 0;
+                            const path = `M ${{cx}} ${{cy}} L ${{x1}} ${{y1}} A ${{radius-2}} ${{radius-2}} 0 ${{largeArc}} 1 ${{x2}} ${{y2}} Z`;
+                            svg += `<path d="${{path}}" fill="${{cropColors[crop]}}" stroke="white" stroke-width="0.5"
+                                    data-crop="${{crop}}" data-location="${{locName}}" class="pie-segment" style="cursor: pointer;"/>`;
+
+                            if (showLabels) {{
+                                const midAngle = (startAngle + angle / 2) * Math.PI / 180;
+                                const labelR = radius * 0.6;
+                                const lx = cx + labelR * Math.cos(midAngle);
+                                const ly = cy + labelR * Math.sin(midAngle);
+                                labelPositions.push({{ x: lx, y: ly, count: count }});
+                            }}
+                            startAngle = endAngle;
+                        }}
+                    }});
+
+                    if (showLabels) {{
+                        labelPositions.forEach(pos => {{
+                            svg += `<text x="${{pos.x}}" y="${{pos.y}}" text-anchor="middle" dominant-baseline="middle"
+                                    fill="white" font-size="14" font-weight="bold" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.9); pointer-events: none;">${{pos.count}}</text>`;
+                        }});
+                    }}
+                }}
+
+                svg += `<circle cx="${{cx}}" cy="${{cy}}" r="${{radius-1}}" fill="none" stroke="white" stroke-width="2"/>`;
+                svg += '</svg>';
+                return svg;
+            }}
+
+            // Function to show crop info panel
+            function showCropInfoPanel(cropName) {{
+                const panel = document.getElementById('crop-info-panel');
+                let html = `<div style="font-weight: bold; font-size: 14px; color: ${{cropColors[cropName]}}; margin-bottom: 10px; border-bottom: 2px solid ${{cropColors[cropName]}}; padding-bottom: 5px;">
+                    <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: ${{cropColors[cropName]}}; margin-right: 8px;"></span>${{cropName}}
+                </div>`;
+
+                let grandTotal = 0;
+                const locations = ['Kabri', 'Kfar Menahem', 'Kedma', 'Gilat'];
+                locations.forEach(loc => {{
+                    const count = cropDist[loc] ? (cropDist[loc][cropName] || 0) : 0;
+                    grandTotal += count;
+                    if (count > 0) {{
+                        html += `<div style="padding: 4px 0; font-size: 13px;"><strong>${{loc}}:</strong> ${{count}} samples</div>`;
+                    }}
+                }});
+
+                html += `<div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #ddd; font-weight: bold; font-size: 13px;">Total: ${{grandTotal}} samples</div>`;
+                html += `<div style="margin-top: 10px; font-size: 11px; color: #666; cursor: pointer;" onclick="document.getElementById('crop-info-panel').style.display='none';">Click to close</div>`;
+
+                panel.innerHTML = html;
+                panel.style.display = 'block';
+            }}
+
+            // Function to toggle location display mode
+            function toggleLocationView(locName) {{
+                // Check if location has only one crop - don't toggle if so
+                const crops = cropDist[locName] || {{}};
+                const activeCrops = Object.entries(crops).filter(([crop, count]) => count > 0);
+                if (activeCrops.length <= 1) {{
+                    // Single-crop location - do nothing on text label click
+                    // (clicking on pie chart shows info panel instead)
+                    return;
+                }}
+
+                const currentState = locationStates[locName];
+                locationStates[locName] = currentState === 'total' ? 'detailed' : 'total';
+                updatePieChart(locName);
+            }}
+
+            // Function to update pie chart and label
+            function updatePieChart(locName) {{
+                const showLabels = locationStates[locName] === 'detailed';
+                const crops = cropDist[locName] || {{}};
+                const total = locTotals[locName] || 0;
+                const maxCount = Math.max(...Object.values(locTotals));
+                const minRadius = 25;
+                const maxRadius = 55;
+                const radius = minRadius + (total / maxCount) * (maxRadius - minRadius);
+
+                // Update pie chart
+                if (pieMarkers[locName]) {{
+                    const newSvg = createPieChartSvg(crops, radius, locName, showLabels);
+                    pieMarkers[locName].getElement().querySelector('div').innerHTML = newSvg;
+                    attachPieClickHandlers();
+                }}
+
+                // Update count label - hide if showing detailed
+                if (countMarkers[locName]) {{
+                    const countEl = countMarkers[locName].getElement();
+                    if (countEl) {{
+                        countEl.style.display = showLabels ? 'none' : 'block';
+                    }}
+                }}
+            }}
+
+            // Attach click handlers to pie segments
+            function attachPieClickHandlers() {{
+                document.querySelectorAll('.pie-segment').forEach(segment => {{
+                    segment.onclick = function(e) {{
+                        e.stopPropagation();
+                        const crop = this.getAttribute('data-crop');
+                        if (crop) showCropInfoPanel(crop);
+                    }};
+                }});
+            }}
+
+            // Initialize map
             const map = L.map('israel-map', {{
-                center: [31.5, 35.0],
+                center: [32.2, 35.0],
                 zoom: 8,
-                minZoom: 7,
-                maxZoom: 12
+                zoomControl: false,
+                dragging: false,
+                touchZoom: false,
+                doubleClickZoom: false,
+                scrollWheelZoom: false,
+                boxZoom: false,
+                keyboard: false
             }});
 
-            // Add CartoDB Positron tile layer (clean, light style)
             L.tileLayer('https://{{s}}.basemaps.cartocdn.com/light_all/{{z}}/{{x}}/{{y}}{{r}}.png', {{
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+                attribution: '&copy; OpenStreetMap &copy; CARTO',
                 subdomains: 'abcd',
                 maxZoom: 20
             }}).addTo(map);
 
-            // Group markers by location to offset them
-            const locationOffsets = {{}};
-            const offsetStep = 0.03;
+            const maxCount = Math.max(...Object.values(locTotals));
+            const minRadius = 25;
+            const maxRadius = 55;
 
-            markersData.forEach((marker, index) => {{
-                const key = marker.location;
-                if (!locationOffsets[key]) {{
-                    locationOffsets[key] = 0;
-                }}
-
-                // Calculate offset for multiple crops at same location
-                const cropIndex = ['Citrus', 'Almond', 'Avocado', 'Vine'].indexOf(marker.crop);
-                const latOffset = (cropIndex % 2) * offsetStep - offsetStep / 2;
-                const lonOffset = Math.floor(cropIndex / 2) * offsetStep - offsetStep / 2;
-
-                // Size based on sample count (radius in pixels)
-                const radius = Math.max(8, Math.min(35, Math.sqrt(marker.count) * 2.5));
-
-                // Create circle marker
-                const circle = L.circleMarker([marker.lat + latOffset, marker.lon + lonOffset], {{
-                    radius: radius,
-                    fillColor: marker.color,
-                    color: '#fff',
-                    weight: 2,
-                    opacity: 1,
-                    fillOpacity: 0.8
-                }}).addTo(map);
-
-                // Add popup
-                circle.bindPopup(`
-                    <div style="text-align: center; padding: 5px;">
-                        <strong style="font-size: 14px; color: ${{marker.color}};">${{marker.crop}}</strong><br>
-                        <span style="font-size: 12px;">${{marker.location}}</span><br>
-                        <span style="font-size: 16px; font-weight: bold;">${{marker.count}} samples</span>
-                    </div>
-                `);
-
-                // Hover effect
-                circle.on('mouseover', function() {{
-                    this.setStyle({{ fillOpacity: 1, weight: 3 }});
-                }});
-                circle.on('mouseout', function() {{
-                    this.setStyle({{ fillOpacity: 0.8, weight: 2 }});
-                }});
-            }});
-
-            // Add location labels
+            // Add pie chart circles for each location
             Object.keys(locationsData).forEach(locName => {{
                 const loc = locationsData[locName];
                 const total = locTotals[locName] || 0;
+                const crops = cropDist[locName] || {{}};
+                const offset = labelOffsets[locName] || {{x: 0, y: -60, arrow: 'down'}};
+                const radius = minRadius + (total / maxCount) * (maxRadius - minRadius);
+                const latOffset = offset.latOffset || 0;
+                const lonOffset = offset.lonOffset || 0;
+                const adjustedLat = loc.lat + latOffset;
+                const adjustedLon = loc.lon + lonOffset;
+                const pieChartSvg = createPieChartSvg(crops, radius, locName, false);
+                const zIndex = offset.zIndex || 100;
 
-                L.marker([loc.lat + 0.08, loc.lon], {{
+                // Pie chart marker
+                const pieMarker = L.marker([adjustedLat, adjustedLon], {{
+                    icon: L.divIcon({{
+                        className: 'pie-chart-marker',
+                        html: `<div>${{pieChartSvg}}</div>`,
+                        iconSize: [radius * 2, radius * 2],
+                        iconAnchor: [radius, radius]
+                    }}),
+                    zIndexOffset: zIndex
+                }}).addTo(map);
+                pieMarkers[locName] = pieMarker;
+
+                // Add click handler to pie marker for single-crop locations
+                const activeCrops = Object.entries(crops).filter(([crop, count]) => count > 0);
+                if (activeCrops.length === 1) {{
+                    pieMarker.on('click', function(e) {{
+                        L.DomEvent.stopPropagation(e);
+                        showCropInfoPanel(activeCrops[0][0]);
+                    }});
+                }} else {{
+                    // Multi-crop locations toggle view on marker click
+                    pieMarker.on('click', function(e) {{
+                        L.DomEvent.stopPropagation(e);
+                        toggleLocationView(locName);
+                    }});
+                }}
+
+                // Count label marker
+                // For single-crop locations, use different className so CSS disables pointer-events on Leaflet wrapper
+                const countClassName = activeCrops.length === 1 ? 'count-label-single' : 'count-label';
+                const pointerStyle = activeCrops.length === 1 ? 'pointer-events: none;' : 'cursor: pointer;';
+                const countMarker = L.marker([adjustedLat, adjustedLon], {{
+                    icon: L.divIcon({{
+                        className: countClassName,
+                        html: `<div style="
+                            color: white; font-size: 13px; font-weight: bold;
+                            text-shadow: 1px 1px 3px rgba(0,0,0,0.9), -1px -1px 2px rgba(0,0,0,0.5);
+                            text-align: center; width: ${{radius * 2}}px; line-height: ${{radius * 2}}px;
+                            ${{pointerStyle}}
+                        ">${{total}}</div>`,
+                        iconSize: [radius * 2, radius * 2],
+                        iconAnchor: [radius, radius]
+                    }}),
+                    zIndexOffset: zIndex + 10
+                }}).addTo(map);
+                countMarkers[locName] = countMarker;
+
+                // Add click handler to count marker for multi-crop locations only
+                if (activeCrops.length > 1) {{
+                    countMarker.on('click', function(e) {{
+                        L.DomEvent.stopPropagation(e);
+                        toggleLocationView(locName);
+                    }});
+                }}
+
+                // Arrow SVG
+                const arrowSvg = offset.arrow === 'left'
+                    ? `<svg width="60" height="20" style="position: absolute; left: -65px; top: 50%; transform: translateY(-50%);">
+                        <line x1="55" y1="10" x2="5" y2="10" stroke="#1B5E20" stroke-width="2"/>
+                        <polygon points="5,10 12,6 12,14" fill="#1B5E20"/>
+                       </svg>`
+                    : `<svg width="60" height="20" style="position: absolute; right: -65px; top: 50%; transform: translateY(-50%);">
+                        <line x1="5" y1="10" x2="55" y2="10" stroke="#1B5E20" stroke-width="2"/>
+                        <polygon points="55,10 48,6 48,14" fill="#1B5E20"/>
+                       </svg>`;
+
+                // Location label with click handler
+                const labelPadding = offset.padding || '8px 14px';
+                const labelMarker = L.marker([adjustedLat, adjustedLon], {{
                     icon: L.divIcon({{
                         className: 'location-label',
-                        html: `<div style="
-                            background: rgba(27, 94, 32, 0.9);
-                            color: white;
-                            padding: 4px 10px;
-                            border-radius: 4px;
-                            font-size: 12px;
-                            font-weight: bold;
-                            white-space: nowrap;
-                            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-                        ">${{locName}} (${{total}})</div>`,
-                        iconSize: [100, 20],
-                        iconAnchor: [50, 10]
-                    }})
+                        html: `<div class="loc-label" data-location="${{locName}}" style="
+                            position: relative; display: inline-block; cursor: pointer;
+                            background: rgba(27, 94, 32, 0.95); color: white;
+                            padding: ${{labelPadding}}; border-radius: 4px;
+                            font-size: 12px; font-weight: bold; white-space: nowrap;
+                            text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+                            transform: translate(${{offset.x}}px, ${{offset.y}}px);
+                        ">${{locName}}${{arrowSvg}}</div>`,
+                        iconSize: [0, 0],
+                        iconAnchor: [0, 0]
+                    }}),
+                    zIndexOffset: zIndex + 20
                 }}).addTo(map);
+            }});
+
+            // Attach click handlers after markers are added
+            setTimeout(() => {{
+                attachPieClickHandlers();
+
+                // Attach click handlers to location labels
+                document.querySelectorAll('.loc-label').forEach(label => {{
+                    label.onclick = function(e) {{
+                        e.stopPropagation();
+                        const locName = this.getAttribute('data-location');
+                        if (locName) toggleLocationView(locName);
+                    }};
+                }});
+            }}, 100);
+
+            // Close info panel when clicking elsewhere on map
+            map.on('click', function() {{
+                document.getElementById('crop-info-panel').style.display = 'none';
             }});
         }})();
     </script>
@@ -363,8 +589,70 @@ def create_israel_map_html(df):
     return map_html
 
 
+def create_location_crop_table(df):
+    """Create a table showing crop breakdown by location."""
+    # Calculate sample counts per location and crop
+    location_crop_counts = df.groupby(['parsed_location', 'parsed_crop']).size().reset_index(name='count')
+
+    # Pivot to get locations as rows, crops as columns
+    pivot_df = location_crop_counts.pivot(index='parsed_location', columns='parsed_crop', values='count').fillna(0).astype(int)
+
+    # Define location order (north to south)
+    location_order = ['Kabri', 'Kfar Menahem', 'Kedma', 'Gilat']
+    crop_order = ['Citrus', 'Almond', 'Avocado', 'Vine']
+
+    # Build HTML table
+    table_html = '''
+    <table style="border-collapse: collapse; font-size: 13px; width: 100%;">
+        <tr style="background: linear-gradient(180deg, #e8f5e9, #c8e6c9);">
+            <th style="border: 1px solid #ddd; padding: 8px 12px; text-align: left;">Location</th>
+    '''
+
+    # Add crop headers with colored indicators
+    for crop in crop_order:
+        color = CROP_COLORS.get(crop, '#888')
+        table_html += f'''
+            <th style="border: 1px solid #ddd; padding: 8px 10px; text-align: center;">
+                <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: {color}; margin-right: 5px;"></span>{crop}
+            </th>
+        '''
+
+    table_html += '<th style="border: 1px solid #ddd; padding: 8px 10px; text-align: center; font-weight: bold;">Total</th></tr>'
+
+    # Add rows for each location
+    for loc in location_order:
+        if loc in pivot_df.index:
+            row_total = 0
+            table_html += f'<tr><td style="border: 1px solid #ddd; padding: 8px 12px; font-weight: bold;">{loc}</td>'
+
+            for crop in crop_order:
+                count = pivot_df.loc[loc, crop] if crop in pivot_df.columns else 0
+                row_total += count
+                # Highlight cells with data
+                bg_color = 'rgba(76, 175, 80, 0.1)' if count > 0 else 'transparent'
+                table_html += f'<td style="border: 1px solid #ddd; padding: 8px 10px; text-align: center; background: {bg_color};">{count if count > 0 else "-"}</td>'
+
+            table_html += f'<td style="border: 1px solid #ddd; padding: 8px 10px; text-align: center; font-weight: bold; background: rgba(27, 94, 32, 0.1);">{row_total}</td></tr>'
+
+    # Add totals row
+    table_html += '<tr style="background: rgba(27, 94, 32, 0.15);"><td style="border: 1px solid #ddd; padding: 8px 12px; font-weight: bold;">Total</td>'
+    grand_total = 0
+    for crop in crop_order:
+        if crop in pivot_df.columns:
+            crop_total = pivot_df[crop].sum()
+            grand_total += crop_total
+            table_html += f'<td style="border: 1px solid #ddd; padding: 8px 10px; text-align: center; font-weight: bold;">{crop_total}</td>'
+        else:
+            table_html += '<td style="border: 1px solid #ddd; padding: 8px 10px; text-align: center;">-</td>'
+
+    table_html += f'<td style="border: 1px solid #ddd; padding: 8px 10px; text-align: center; font-weight: bold;">{grand_total}</td></tr>'
+    table_html += '</table>'
+
+    return table_html
+
+
 def create_summary_table(df):
-    """Create a summary statistics table."""
+    """Create a summary statistics table (without Locations column - shown in map)."""
     df_with_dates = df[df['parsed_date'].notna()].copy()
 
     summary_data = []
@@ -376,8 +664,6 @@ def create_summary_table(df):
             continue
 
         sample_count = len(crop_df)
-        location_counts = crop_df['parsed_location'].value_counts()
-        locations_str = ', '.join([f"{loc} ({count})" for loc, count in location_counts.items()])
 
         if len(crop_df_dates) > 0:
             date_range = f"{crop_df_dates['parsed_date'].min().strftime('%b %Y')} - {crop_df_dates['parsed_date'].max().strftime('%b %Y')}"
@@ -389,7 +675,6 @@ def create_summary_table(df):
         summary_data.append({
             'Crop': crop_name,
             'Total Samples': sample_count,
-            'Locations': locations_str,
             'Date Range': date_range,
             'Unique Dates': unique_dates
         })
@@ -430,6 +715,7 @@ def generate_html_report(df):
     fig_timeline = create_timeline_chart(df)
     fig_seasonal = create_seasonal_distribution(df)
     map_html = create_israel_map_html(df)
+    location_crop_table = create_location_crop_table(df)
     summary_table = create_summary_table(df)
 
     # Convert to HTML
@@ -439,91 +725,31 @@ def generate_html_report(df):
     html_content = f"""<!DOCTYPE html>
 <html>
 <head>
-    <title>Visualization 1: Data Collection Story</title>
+    <title>Visualization 1: Data Collection Overview</title>
     {HTML_STYLE}
 </head>
 <body>
-    <h1>Data Collection Story</h1>
-    <p class="subtitle">Understanding the scope and distribution of our agricultural spectroscopy dataset</p>
+    <h1>NIR (Near Infrared) Spectroscopy Dataset: 4 Crops, 4 Locations, 7,500+ Samples</h1>
+    <p class="subtitle">Leaf samples with 1,557 spectral wavelengths and chemical values: N (Nitrogen), ST (Starch), SC (Soluble Carbohydrates) | 2021-2024</p>
 
-    <div class="intro-box">
-        <h3 style="margin-top: 0; border: none; padding-left: 0;">Research Context</h3>
-        <p>This research project combines <strong>spectroscopy measurements</strong> with <strong>chemical analysis</strong>
-        to study nitrogen status in agricultural crops. Leaf samples were collected from four crop types across
-        multiple research stations in Israel over several years.</p>
-
-        <p><strong>Key measurements collected:</strong></p>
-        <ul>
-            <li><strong>Spectral Data:</strong> Near-infrared reflectance across 1,557 wavelengths (3,999-10,001 nm)</li>
-            <li><strong>N_Value:</strong> Nitrogen content (%) - essential nutrient indicator</li>
-            <li><strong>SC_Value:</strong> Soluble Carbohydrates (mg/g) - readily available energy</li>
-            <li><strong>ST_Value:</strong> Starch content (mg/g) - long-term energy storage</li>
-        </ul>
-    </div>
-
-    <h3 style="margin-top: 30px;">Dataset Overview</h3>
     <div class="analysis-section">
-        <p>Summary of samples collected across crops and locations:</p>
         {summary_table}
-    </div>
-
-    <h2>Temporal Distribution</h2>
-
-    <h3>1.1 Timeline of Sample Collection</h3>
-    <div class="analysis-section">
-        <p>The timeline below shows when samples were collected for each crop type.
-        This temporal coverage is crucial for understanding seasonal patterns in plant chemistry.</p>
         {plot_timeline}
     </div>
 
-    <h3>1.2 Seasonal Sample Distribution</h3>
     <div class="analysis-section">
-        <p>Monthly distribution reveals the seasonal coverage of our sampling. Different crops have
-        different active growing seasons, reflected in the sampling patterns.</p>
         {plot_seasonal}
-
-        <div class="key-observations">
-            <h4>Seasonal Observations</h4>
-            <ul>
-                <li><strong>Citrus:</strong> Year-round sampling with peaks in spring and summer</li>
-                <li><strong>Almond:</strong> Concentrated sampling during active growing season</li>
-                <li><strong>Avocado:</strong> Multiple seasons covered for comprehensive analysis</li>
-                <li><strong>Vine:</strong> Focused sampling during key phenological stages</li>
-            </ul>
-        </div>
     </div>
 
-    <h2>Geographic Distribution</h2>
-
-    <h3>1.3 Sample Locations Across Israel</h3>
     <div class="analysis-section">
-        <p>Samples were collected from four agricultural research stations across Israel,
-        representing different climatic zones and growing conditions. Circle size indicates sample count.</p>
-        {map_html}
-
-        <div class="methodology">
-            <h4>Research Stations</h4>
-            <ul>
-                <li><strong>Gilat:</strong> Major research station in the Negev - primary location for NPK experiments</li>
-                <li><strong>Kedma:</strong> Central Israel agricultural research area</li>
-                <li><strong>Kabri:</strong> Western Galilee - northern climate conditions</li>
-                <li><strong>Kfar Menahem:</strong> Coastal plain - Mediterranean climate</li>
-            </ul>
+        <h3 style="color: #1B5E20; margin-bottom: 5px;">1.3 Geographic Distribution: 4 Research Sites Across Israel (North to South)</h3>
+        <p style="font-size: 13px; color: #555; margin-bottom: 15px;">Pie charts show crop distribution per location. Circle size reflects total sample count. <span style="color: #888;"><br>(Click city name to show sample counts per crop, click pie segment to see crop distribution across all sites)</span></p>
+        <div style="display: flex; justify-content: center; align-items: flex-start; gap: 0; position: relative;">
+            <div style="position: relative;">
+                {map_html}
+            </div>
         </div>
     </div>
-
-    <div class="discovery-box">
-        <h3>Data Collection Summary</h3>
-        <p>This comprehensive dataset provides the foundation for our analysis of crop nitrogen status:</p>
-        <ul>
-            <li><strong>Multi-crop coverage:</strong> Four distinct crop types with different physiological characteristics</li>
-            <li><strong>Temporal depth:</strong> Multi-year sampling enabling seasonal and annual pattern analysis</li>
-            <li><strong>Geographic diversity:</strong> Four locations representing Israel's agricultural zones</li>
-            <li><strong>Rich measurements:</strong> Combined spectral and chemical data for advanced modeling</li>
-        </ul>
-    </div>
-
-    <p class="timestamp">Report generated: {datetime.now().strftime('%Y-%m-%d %H:%M')}</p>
 </body>
 </html>"""
 

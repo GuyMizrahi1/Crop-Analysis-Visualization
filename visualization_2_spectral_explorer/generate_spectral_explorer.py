@@ -45,6 +45,15 @@ def extract_crop_from_id(id_str):
     return None
 
 
+def hex_to_rgba(hex_color, opacity):
+    """Convert hex color to rgba string."""
+    hex_color = hex_color.lstrip('#')
+    r = int(hex_color[0:2], 16)
+    g = int(hex_color[2:4], 16)
+    b = int(hex_color[4:6], 16)
+    return f'rgba({r}, {g}, {b}, {opacity})'
+
+
 def load_spectral_data():
     """Load and prepare spectral data."""
     print("Loading spectral data...")
@@ -92,12 +101,23 @@ def calculate_mean_spectra(df, wavelength_cols):
     return mean_spectra, std_spectra
 
 
-def sample_individual_spectra(df, wavelength_cols, max_samples_per_crop=100):
+def sample_individual_spectra(df, wavelength_cols, wavelengths, max_samples_per_crop=100):
     """Sample individual spectra for the 'all samples' view."""
     sampled = {}
 
+    # Find column closest to 4000nm for avocado outlier filtering
+    wavelengths_arr = np.array(wavelengths)
+    idx_4000 = np.argmin(np.abs(wavelengths_arr - 4000))
+    col_4000 = wavelength_cols[idx_4000]
+
     for crop in ['Citrus', 'Almond', 'Avocado', 'Vine']:
-        crop_df = df[df['parsed_crop'] == crop]
+        crop_df = df[df['parsed_crop'] == crop].copy()
+
+        # Remove avocado outliers (values > 0.8 at ~4000nm)
+        if crop == 'Avocado':
+            crop_df = crop_df[crop_df[col_4000] <= 0.8]
+            print(f"  {crop}: filtered outliers, {len(crop_df)} samples remaining")
+
         if len(crop_df) > max_samples_per_crop:
             crop_df = crop_df.sample(n=max_samples_per_crop, random_state=42)
         sampled[crop] = crop_df[wavelength_cols].values
@@ -116,7 +136,7 @@ def create_spectral_explorer(df, wavelength_cols, wavelengths):
     mean_spectra, std_spectra = calculate_mean_spectra(df, wavelength_cols)
 
     print("\nSampling individual spectra...")
-    individual_spectra = sample_individual_spectra(df, wavelength_cols, max_samples_per_crop=50)
+    individual_spectra = sample_individual_spectra(df, wavelength_cols, wavelengths, max_samples_per_crop=50)
 
     fig = go.Figure()
 
@@ -127,7 +147,7 @@ def create_spectral_explorer(df, wavelength_cols, wavelengths):
     # Order crops so Citrus is drawn last (on top) to avoid being covered by Almond
     crops = ['Almond', 'Avocado', 'Vine', 'Citrus']
 
-    # Add mean spectra traces (visible by default)
+    # Add mean spectra traces (hidden by default - switch to "Mean ± SD" to view)
     for crop in crops:
         if crop in mean_spectra:
             # Main mean line - thin line for clarity
@@ -138,43 +158,60 @@ def create_spectral_explorer(df, wavelength_cols, wavelengths):
                 name=f'{crop}',
                 line=dict(color=CROP_COLORS[crop], width=1.5),
                 legendgroup=crop,
+                visible=False,
                 hovertemplate=f'{crop}: %{{y:.3f}}<extra></extra>'
             ))
             mean_traces.append(len(fig.data) - 1)
 
-            # Standard deviation band - lighter fill
+            # Standard deviation band - upper and lower boundary lines with transparent fill
             upper = mean_spectra[crop] + std_spectra[crop]
             lower = mean_spectra[crop] - std_spectra[crop]
 
+            # Upper boundary line (invisible - just for fill reference)
             fig.add_trace(go.Scatter(
-                x=list(wavelengths) + list(wavelengths)[::-1],
-                y=list(upper) + list(lower)[::-1],
-                fill='toself',
-                fillcolor=CROP_COLORS[crop].replace(')', ', 0.1)').replace('rgb', 'rgba'),
-                line=dict(color='rgba(0,0,0,0)'),
-                name=f'{crop} (±1 SD)',
+                x=wavelengths,
+                y=upper,
+                mode='lines',
+                line=dict(color='rgba(0,0,0,0)', width=0),
                 legendgroup=crop,
                 showlegend=False,
+                visible=False,
                 hoverinfo='skip'
             ))
             mean_traces.append(len(fig.data) - 1)
 
-    # Add individual spectra traces (hidden by default)
+            # Lower boundary line with fill to upper (invisible boundary)
+            fig.add_trace(go.Scatter(
+                x=wavelengths,
+                y=lower,
+                mode='lines',
+                fill='tonexty',
+                fillcolor=hex_to_rgba(CROP_COLORS[crop], 0.2),
+                line=dict(color='rgba(0,0,0,0)', width=0),
+                name=f'{crop} (\u00b11 SD)',
+                legendgroup=crop,
+                showlegend=False,
+                visible=False,
+                hoverinfo='skip'
+            ))
+            mean_traces.append(len(fig.data) - 1)
+
+    # Add individual spectra traces (visible by default - "All Samples" is default view)
     for crop in crops:
         if crop in individual_spectra:
             for i, spectrum in enumerate(individual_spectra[crop]):
-                # For the first sample of each crop, use a thicker line for better legend visibility
+                # All samples have same styling - no misleading "mean-like" thick line
                 is_first = (i == 0)
                 fig.add_trace(go.Scatter(
                     x=wavelengths,
                     y=spectrum,
                     mode='lines',
                     name=crop if is_first else None,
-                    line=dict(color=CROP_COLORS[crop], width=3.0 if is_first else 1.0),
-                    opacity=0.8 if is_first else 0.25,
+                    line=dict(color=CROP_COLORS[crop], width=1.0),
+                    opacity=0.3,
                     legendgroup=crop,
                     showlegend=is_first,
-                    visible=False,
+                    visible=True,
                     hoverinfo='skip'  # Disable hover for individual samples to reduce clutter
                 ))
                 individual_traces.append(len(fig.data) - 1)
@@ -192,7 +229,7 @@ def create_spectral_explorer(df, wavelength_cols, wavelengths):
     for idx in individual_traces:
         individual_visibility[idx] = True
 
-    # Add dropdown menu for view toggle
+    # Add dropdown menu for view toggle (default to "All Samples")
     fig.update_layout(
         updatemenus=[
             dict(
@@ -204,14 +241,14 @@ def create_spectral_explorer(df, wavelength_cols, wavelengths):
                 xanchor="center",
                 buttons=[
                     dict(
-                        label="Mean Spectrum",
-                        method="update",
-                        args=[{"visible": mean_visibility}]
-                    ),
-                    dict(
                         label="All Samples",
                         method="update",
                         args=[{"visible": individual_visibility}]
+                    ),
+                    dict(
+                        label="Mean &plusmn; SD",
+                        method="update",
+                        args=[{"visible": mean_visibility}]
                     )
                 ],
                 bgcolor='white',
@@ -223,8 +260,8 @@ def create_spectral_explorer(df, wavelength_cols, wavelengths):
 
     fig.update_layout(
         title=dict(
-            text="Spectral Signatures by Crop Type<br><sup>Toggle between Mean Spectrum and All Samples views using the buttons above</sup>",
-            font=dict(size=18),
+            text="2.1 NIR Absorption Spectrum: Each crop has a distinct biochemical signature",
+            font=dict(size=16),
             y=0.95
         ),
         xaxis=dict(
@@ -294,102 +331,16 @@ def generate_html_report(df, wavelength_cols, wavelengths):
     html_content = f"""<!DOCTYPE html>
 <html>
 <head>
-    <title>Visualization 2: Spectral Data Explorer</title>
+    <title>Visualization 2: NIR Spectral Signatures</title>
     {HTML_STYLE}
-    <style>
-        .spectral-info {{
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin: 20px 0;
-        }}
-        .info-card {{
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            border-left: 4px solid #228B22;
-        }}
-        @media (max-width: 768px) {{
-            .spectral-info {{
-                grid-template-columns: 1fr;
-            }}
-        }}
-    </style>
 </head>
 <body>
-    <h1>Spectral Data Explorer</h1>
-    <p class="subtitle">Interactive exploration of near-infrared spectral signatures across crop types</p>
-
-    <div class="intro-box">
-        <h3 style="margin-top: 0; border: none; padding-left: 0;">Understanding Spectral Data</h3>
-        <p><strong>Near-infrared (NIR) spectroscopy</strong> is a non-destructive technique that measures
-        how plant tissues absorb and reflect light at different wavelengths. Each crop has a unique
-        "spectral fingerprint" determined by its biochemical composition.</p>
-
-        <div class="spectral-info">
-            <div class="info-card">
-                <h4 style="margin-top: 0;">Wavelength Range</h4>
-                <p><strong>3,999 - 10,001 nm</strong><br>
-                Mid-infrared region sensitive to organic compounds</p>
-            </div>
-            <div class="info-card">
-                <h4 style="margin-top: 0;">Total Measurements</h4>
-                <p><strong>{len(wavelengths):,} wavelengths</strong><br>
-                High-resolution spectral data per sample</p>
-            </div>
-        </div>
-    </div>
-
-    <h2>Interactive Spectral Visualization</h2>
+    <h1>NIR (Near Infrared) Spectral Signatures: Unique Fingerprint per Crop Type</h1>
+    <p class="subtitle">{len(wavelengths):,} wavelengths (3,999-10,001 nm) | Spectral signatures enable prediction of chemical values (N%, ST, SC)</p>
 
     <div class="analysis-section">
-        <p><strong>Instructions:</strong></p>
-        <ul>
-            <li>Use the <strong>Mean Spectrum / All Samples</strong> buttons to switch views</li>
-            <li>Click on crop names in the legend to <strong>show/hide</strong> specific crops</li>
-            <li>Hover over the chart to see exact wavelength and value</li>
-            <li>Use the toolbar to zoom, pan, or download the figure</li>
-        </ul>
-
         {plot_html}
-
-        {create_wavelength_regions_annotation()}
     </div>
-
-    <h2>Dataset Summary</h2>
-
-    <div class="analysis-section">
-        <h4>Samples per Crop Type</h4>
-        {stats_html}
-
-        <div class="key-observations">
-            <h4>Key Spectral Observations</h4>
-            <ul>
-                <li><strong>Distinct Signatures:</strong> Each crop shows a unique spectral pattern,
-                reflecting differences in leaf structure and chemical composition</li>
-                <li><strong>Common Absorption Bands:</strong> All crops show absorption features at similar
-                wavelengths (water, chlorophyll, cellulose), but with varying intensities</li>
-                <li><strong>Nitrogen Sensitivity:</strong> The 6,000-7,500 nm region is particularly sensitive
-                to nitrogen-containing compounds, making it valuable for N status prediction</li>
-                <li><strong>Carbohydrate Features:</strong> Starch and sugar content influence the
-                7,500-10,000 nm region, relevant for our N/ST ratio analysis</li>
-            </ul>
-        </div>
-    </div>
-
-    <div class="discovery-box">
-        <h3>From Spectra to Predictions</h3>
-        <p>This spectral data forms the foundation of our machine learning models:</p>
-        <ul>
-            <li><strong>PLSR (Partial Least Squares Regression):</strong> Reduces 1,557 wavelengths to key components</li>
-            <li><strong>Random Forest & XGBoost:</strong> Predict N, SC, and ST values from spectral features</li>
-            <li><strong>N/ST Ratio Prediction:</strong> Enables fertilization timing recommendations without destructive sampling</li>
-        </ul>
-        <p>The ability to predict chemical composition from spectral data enables rapid, non-destructive
-        assessment of crop nitrogen status in the field.</p>
-    </div>
-
-    <p class="timestamp">Report generated: {datetime.now().strftime('%Y-%m-%d %H:%M')}</p>
 </body>
 </html>"""
 

@@ -3,9 +3,8 @@ Visualization 6: N/ST Ratio Analysis
 
 This visualization demonstrates why the N/ST ratio outperforms nitrogen alone
 for fertilization timing decisions. It shows:
-1. Normalized comparison (0-100%) for full period
-2. Normalized comparison for recent period (excluding 2022 anomaly)
-3. Key observations on timing patterns
+1. Normalized comparison for recent period (Aug 2023 - Aug 2024)
+2. Dual-axis view showing actual values
 
 Author: Data Science Visualization Course Project
 """
@@ -13,6 +12,7 @@ Author: Data Science Visualization Course Project
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 import os
 import sys
 from datetime import datetime
@@ -23,10 +23,10 @@ from shared.config import (
     HTML_STYLE, NPK_DATASET_PATH
 )
 
-# Colors for the three metrics
-N_COLOR = '#7fb3d5'       # Muted blue
-ST_COLOR = '#82c982'      # Muted green
-RATIO_COLOR = '#ff8c00'   # Bright orange
+# Colors for the three metrics (Gray + Green Accent - matches theme)
+N_COLOR = '#BDBDBD'       # Light gray - subtle background
+ST_COLOR = '#424242'      # Dark gray - higher contrast from N
+RATIO_COLOR = '#228B22'   # Forest green - matches theme title color
 
 # =============================================================================
 # DATA LOADING
@@ -41,12 +41,12 @@ def load_npk_data():
     df['year'] = df['parsed_date'].dt.year
     df['month'] = df['parsed_date'].dt.month
 
-    # Filter to Aug 2022 - Aug 2024
-    start_date = pd.Timestamp('2022-08-01')
+    # Filter to Sep 2023 - Aug 2024 (full phenological cycle)
+    start_date = pd.Timestamp('2023-09-01')
     end_date = pd.Timestamp('2024-08-31')
     df = df[(df['parsed_date'] >= start_date) & (df['parsed_date'] <= end_date)]
 
-    print(f"Loaded {len(df)} NPK samples (Aug 2022 - Aug 2024)")
+    print(f"Loaded {len(df)} NPK samples (Sep 2023 - Aug 2024)")
     return df
 
 
@@ -76,8 +76,12 @@ def normalize(series):
 # VISUALIZATION FUNCTIONS
 # =============================================================================
 
-def create_normalized_full_period(df):
-    """Create normalized view for full period (Aug 2022 - Aug 2024)."""
+def create_normalized_chart(df):
+    """Create clean normalized view for phenological cycle (Sep 2023 - Aug 2024).
+
+    Simplified design with prominent N/ST Ratio curve as the main visual focus.
+    Shows three fertilization windows matching citrus phenology.
+    """
     monthly_avg = get_monthly_averages(df)
 
     # Normalize
@@ -87,78 +91,188 @@ def create_normalized_full_period(df):
 
     fig = go.Figure()
 
-    # N Value (normalized)
+    # Add three fertilization windows based on citrus phenology
+    # Window 1: December (winter dormancy break)
+    fig.add_vrect(
+        x0='2023-12-05', x1='2024-01-23',
+        fillcolor='rgba(135, 206, 250, 0.2)',
+        layer='below',
+        line_width=0
+    )
+    fig.add_annotation(
+        x='2024-01-01', y=108,
+        text="Winter Window",
+        showarrow=False,
+        font=dict(size=10, color='#4682B4')
+    )
+
+    # Window 2: April (spring flush)
+    fig.add_vrect(
+        x0='2024-04-01', x1='2024-06-01',
+        fillcolor='rgba(255, 215, 0, 0.2)',
+        layer='below',
+        line_width=0
+    )
+    fig.add_annotation(
+        x='2024-05-01', y=108,
+        text="Spring Window",
+        showarrow=False,
+        font=dict(size=10, color='#8B6914')
+    )
+
+    # Window 3: August (summer growth)
+    fig.add_vrect(
+        x0='2024-07-29', x1='2024-08-25',
+        fillcolor='rgba(255, 160, 122, 0.2)',
+        layer='below',
+        line_width=0
+    )
+    fig.add_annotation(
+        x='2024-08-11', y=108,
+        text="Summer Window",
+        showarrow=False,
+        font=dict(size=10, color='#CD5C5C')
+    )
+
+    # N Value (normalized) - subtle/thin
     fig.add_trace(go.Scatter(
         x=monthly_avg['normalized_date'],
         y=monthly_avg['N_norm'],
         mode='lines+markers',
-        name='N Value',
-        line=dict(color=N_COLOR, width=2),
-        marker=dict(size=6),
-        hovertemplate='N: %{customdata:.2f}% (norm: %{y:.0f}%)<extra></extra>',
+        name='N Value (%)',
+        line=dict(color=N_COLOR, width=2, dash='dot'),
+        marker=dict(size=5),
+        opacity=0.7,
+        hovertemplate='N: %{customdata:.2f}%<extra></extra>',
         customdata=monthly_avg['N_Value']
     ))
 
-    # ST Value (normalized)
+    # ST Value (normalized) - subtle/thin
     fig.add_trace(go.Scatter(
         x=monthly_avg['normalized_date'],
         y=monthly_avg['ST_norm'],
         mode='lines+markers',
-        name='ST Value',
-        line=dict(color=ST_COLOR, width=2),
-        marker=dict(size=6),
-        hovertemplate='ST: %{customdata:.1f} mg/g (norm: %{y:.0f}%)<extra></extra>',
+        name='ST Value (mg/g)',
+        line=dict(color=ST_COLOR, width=2, dash='dot'),
+        marker=dict(size=5),
+        opacity=0.7,
+        hovertemplate='ST: %{customdata:.1f} mg/g<extra></extra>',
         customdata=monthly_avg['ST_Value']
     ))
 
-    # N/ST Ratio (normalized) - PROMINENT
+    # N/ST Ratio (normalized) - THE PROMINENT CURVE
     fig.add_trace(go.Scatter(
         x=monthly_avg['normalized_date'],
         y=monthly_avg['Ratio_norm'],
         mode='lines+markers',
         name='N/ST Ratio',
-        line=dict(color=RATIO_COLOR, width=4),
-        marker=dict(size=9, symbol='diamond'),
-        hovertemplate='N/ST: %{customdata:.4f} (norm: %{y:.0f}%)<extra></extra>',
+        line=dict(color=RATIO_COLOR, width=5),
+        marker=dict(size=14, symbol='diamond', line=dict(width=2, color='white')),
+        hovertemplate='<b>N/ST Ratio: %{customdata:.4f}</b><extra></extra>',
         customdata=monthly_avg['N_ST_Ratio']
     ))
 
-    # Add year boundary
-    fig.add_shape(
-        type="line",
-        x0='2023-08-01', x1='2023-08-01',
-        y0=0, y1=100,
-        line=dict(color="black", width=1.5, dash="dash")
-    )
-
-    # Annotations
-    n_peak_idx = monthly_avg['N_norm'].idxmax()
-    ratio_peak_idx = monthly_avg['Ratio_norm'].idxmax()
-
-    fig.add_annotation(
-        x=monthly_avg.loc[n_peak_idx, 'normalized_date'],
-        y=100,
-        text="N peaks here",
-        showarrow=True, arrowhead=2, ax=0, ay=20,
-        font=dict(size=10, color=N_COLOR)
-    )
-
-    fig.add_annotation(
-        x=monthly_avg.loc[ratio_peak_idx, 'normalized_date'],
-        y=monthly_avg.loc[ratio_peak_idx, 'Ratio_norm'],
-        text="Ratio peaks here →<br>Fertilization window",
-        showarrow=True, arrowhead=2, ax=-60, ay=-30,
-        font=dict(size=10, color=RATIO_COLOR)
-    )
-
     fig.update_layout(
         title=dict(
-            text="Normalized View - Full Period (Aug 2022 - Aug 2024)<br><sup>All curves scaled to 0-100% for direct timing comparison</sup>",
+            text="N/ST Ratio: Key Indicator for Phenological Fertilization Timing<br><sup>Three fertilization windows match citrus growth phases: Winter (Dec-Jan), Spring (Apr-May), Summer (Aug)</sup>",
             font=dict(size=16)
         ),
-        xaxis=dict(title='Date', tickformat='%b %Y', dtick='M2'),
-        yaxis=dict(title='Normalized Value (%)', range=[0, 105]),
+        xaxis=dict(
+            title='Date',
+            tickformat='%b %Y',
+            dtick='M1',
+            showgrid=True,
+            gridcolor='rgba(0,0,0,0.05)'
+        ),
+        yaxis=dict(
+            title='Normalized Value (%)',
+            range=[-5, 115],
+            showgrid=True,
+            gridcolor='rgba(0,0,0,0.05)'
+        ),
         height=550,
+        legend=dict(
+            orientation='h',
+            yanchor='top',
+            y=-0.12,
+            xanchor='center',
+            x=0.5,
+            font=dict(size=13),
+            bgcolor='rgba(255,255,255,0.8)'
+        ),
+        margin=dict(b=80),
+        hovermode='x unified',
+        plot_bgcolor='white'
+    )
+
+    return fig
+
+
+def create_dual_axis_chart(df):
+    """Create dual-axis view showing actual values."""
+    monthly_avg = get_monthly_averages(df)
+
+    fig = make_subplots(specs=[[{"secondary_y": True}]])
+
+    # Add fertilization window shading
+    fig.add_vrect(
+        x0='2024-04-01', x1='2024-07-31',
+        fillcolor='rgba(255, 200, 100, 0.3)',
+        layer='below',
+        line_width=0,
+    )
+
+    # N Value (left y-axis)
+    fig.add_trace(
+        go.Scatter(
+            x=monthly_avg['normalized_date'],
+            y=monthly_avg['N_Value'],
+            mode='lines+markers',
+            name='N Value (%)',
+            line=dict(color=N_COLOR, width=3),
+            marker=dict(size=8),
+            hovertemplate='N: %{y:.2f}%<extra></extra>'
+        ),
+        secondary_y=False
+    )
+
+    # ST Value (right y-axis)
+    fig.add_trace(
+        go.Scatter(
+            x=monthly_avg['normalized_date'],
+            y=monthly_avg['ST_Value'],
+            mode='lines+markers',
+            name='ST Value (mg/g)',
+            line=dict(color=ST_COLOR, width=3),
+            marker=dict(size=8),
+            hovertemplate='ST: %{y:.1f} mg/g<extra></extra>'
+        ),
+        secondary_y=True
+    )
+
+    # N/ST Ratio as bar chart overlay (scaled to fit)
+    ratio_scaled = monthly_avg['N_ST_Ratio'] * 100  # Scale for visibility
+    fig.add_trace(
+        go.Bar(
+            x=monthly_avg['normalized_date'],
+            y=ratio_scaled,
+            name='N/ST Ratio (×100)',
+            marker=dict(color=RATIO_COLOR, opacity=0.4),
+            hovertemplate='N/ST: %{customdata:.4f}<extra></extra>',
+            customdata=monthly_avg['N_ST_Ratio'],
+            width=1000000000 * 20  # Width in milliseconds for monthly bars
+        ),
+        secondary_y=False
+    )
+
+    # Update layout
+    fig.update_layout(
+        title=dict(
+            text="6.2 Actual Values: N% and ST Follow Different Seasonal Patterns<br><sup>Left axis: N% and N/ST ratio (×100) | Right axis: ST (mg/g) | Yellow zone = fertilization window</sup>",
+            font=dict(size=16)
+        ),
+        xaxis=dict(title='Date', tickformat='%b %Y', dtick='M1'),
+        height=500,
         legend=dict(
             orientation='h',
             yanchor='bottom',
@@ -166,37 +280,166 @@ def create_normalized_full_period(df):
             xanchor='center',
             x=0.5
         ),
-        hovermode='x unified'
+        hovermode='x unified',
+        plot_bgcolor='white',
+        barmode='overlay'
+    )
+
+    # Update y-axes
+    fig.update_yaxes(title_text="N Value (%) / N÷ST Ratio (×100)", secondary_y=False, color=N_COLOR)
+    fig.update_yaxes(title_text="ST Value (mg/g)", secondary_y=True, color=ST_COLOR)
+
+    return fig
+
+
+def create_triple_axis_chart(df):
+    """Create triple y-axis chart with actual (non-normalized) values.
+
+    - Left y-axis: N Value (%)
+    - Right y-axis 1: ST Value (mg/g)
+    - Right y-axis 2: N/ST Ratio
+    """
+    monthly_avg = get_monthly_averages(df)
+
+    fig = go.Figure()
+
+    # N Value (left y-axis)
+    fig.add_trace(go.Scatter(
+        x=monthly_avg['normalized_date'],
+        y=monthly_avg['N_Value'],
+        mode='lines+markers',
+        name='N Value (%)',
+        line=dict(color=N_COLOR, width=3),
+        marker=dict(size=10),
+        yaxis='y1',
+        hovertemplate='N: %{y:.2f}%<extra></extra>'
+    ))
+
+    # ST Value (right y-axis 1)
+    fig.add_trace(go.Scatter(
+        x=monthly_avg['normalized_date'],
+        y=monthly_avg['ST_Value'],
+        mode='lines+markers',
+        name='ST Value (mg/g)',
+        line=dict(color=ST_COLOR, width=3),
+        marker=dict(size=10),
+        yaxis='y2',
+        hovertemplate='ST: %{y:.1f} mg/g<extra></extra>'
+    ))
+
+    # N/ST Ratio (right y-axis 2)
+    fig.add_trace(go.Scatter(
+        x=monthly_avg['normalized_date'],
+        y=monthly_avg['N_ST_Ratio'],
+        mode='lines+markers',
+        name='N/ST Ratio \u2605',
+        line=dict(color=RATIO_COLOR, width=4),
+        marker=dict(size=14, symbol='diamond', line=dict(width=2, color='white')),
+        yaxis='y3',
+        hovertemplate='<b>N/ST: %{y:.4f}</b><extra></extra>'
+    ))
+
+    # Find and mark peaks in N/ST ratio
+    ratio_values = monthly_avg['N_ST_Ratio'].values
+    dates = monthly_avg['normalized_date'].values
+    for i in range(1, len(ratio_values) - 1):
+        if ratio_values[i] > ratio_values[i-1] and ratio_values[i] > ratio_values[i+1]:
+            fig.add_annotation(
+                x=dates[i],
+                y=ratio_values[i],
+                yref='y3',
+                text=f"\u25B2 Peak",
+                showarrow=True,
+                arrowhead=2,
+                arrowcolor=RATIO_COLOR,
+                font=dict(size=10, color=RATIO_COLOR),
+                yshift=15
+            )
+
+    fig.update_layout(
+        title=dict(
+            text="6.2 Triple Y-Axis: Actual Values (Non-Normalized)<br><sup>Each metric on its own scale | Peaks marked on N/ST ratio</sup>",
+            font=dict(size=16)
+        ),
+        xaxis=dict(
+            title='Date',
+            tickformat='%b %Y',
+            dtick='M1',
+            domain=[0.1, 0.85]
+        ),
+        yaxis=dict(
+            title=dict(text='N Value (%)', font=dict(color=N_COLOR)),
+            tickfont=dict(color=N_COLOR),
+            side='left',
+            position=0.05
+        ),
+        yaxis2=dict(
+            title=dict(text='ST Value (mg/g)', font=dict(color=ST_COLOR)),
+            tickfont=dict(color=ST_COLOR),
+            overlaying='y',
+            side='right',
+            position=0.9
+        ),
+        yaxis3=dict(
+            title=dict(text='N/ST Ratio', font=dict(color=RATIO_COLOR)),
+            tickfont=dict(color=RATIO_COLOR),
+            overlaying='y',
+            side='right',
+            position=0.97
+        ),
+        height=550,
+        legend=dict(
+            orientation='h',
+            yanchor='top',
+            y=-0.12,
+            xanchor='center',
+            x=0.5
+        ),
+        hovermode='x unified',
+        plot_bgcolor='white',
+        margin=dict(r=100, b=100)
     )
 
     return fig
 
 
-def create_normalized_recent_period(df):
-    """Create normalized view for recent period (Aug 2023 - Aug 2024)."""
-    # Filter to recent period
-    start_date = pd.Timestamp('2023-08-01')
-    end_date = pd.Timestamp('2024-08-31')
-    df_recent = df[(df['parsed_date'] >= start_date) & (df['parsed_date'] <= end_date)].copy()
+def create_peak_annotated_chart(df):
+    """Create chart highlighting N/ST ratio peaks with gradient direction arrows."""
+    monthly_avg = get_monthly_averages(df)
 
-    monthly_avg = get_monthly_averages(df_recent)
-
-    # Normalize
+    # Normalize for comparison
     monthly_avg['N_norm'] = normalize(monthly_avg['N_Value'])
     monthly_avg['ST_norm'] = normalize(monthly_avg['ST_Value'])
     monthly_avg['Ratio_norm'] = normalize(monthly_avg['N_ST_Ratio'])
 
     fig = go.Figure()
 
+    # Add shaded regions where N_norm > ST_norm (indicating high ratio periods)
+    dates = monthly_avg['normalized_date'].tolist()
+    n_norm = monthly_avg['N_norm'].tolist()
+    st_norm = monthly_avg['ST_norm'].tolist()
+
+    # Find crossover regions
+    for i in range(len(dates) - 1):
+        if n_norm[i] > st_norm[i]:
+            fig.add_vrect(
+                x0=dates[i],
+                x1=dates[i+1] if i+1 < len(dates) else dates[i],
+                fillcolor='rgba(231, 76, 60, 0.15)',
+                layer='below',
+                line_width=0
+            )
+
     # N Value (normalized)
     fig.add_trace(go.Scatter(
         x=monthly_avg['normalized_date'],
         y=monthly_avg['N_norm'],
         mode='lines+markers',
-        name='N Value',
-        line=dict(color=N_COLOR, width=2),
+        name='N Value (normalized)',
+        line=dict(color=N_COLOR, width=2, dash='dot'),
         marker=dict(size=6),
-        hovertemplate='N: %{customdata:.2f}% (norm: %{y:.0f}%)<extra></extra>',
+        opacity=0.8,
+        hovertemplate='N: %{customdata:.2f}%<extra></extra>',
         customdata=monthly_avg['N_Value']
     ))
 
@@ -205,71 +448,178 @@ def create_normalized_recent_period(df):
         x=monthly_avg['normalized_date'],
         y=monthly_avg['ST_norm'],
         mode='lines+markers',
-        name='ST Value',
-        line=dict(color=ST_COLOR, width=2),
+        name='ST Value (normalized)',
+        line=dict(color=ST_COLOR, width=2, dash='dot'),
         marker=dict(size=6),
-        hovertemplate='ST: %{customdata:.1f} mg/g (norm: %{y:.0f}%)<extra></extra>',
+        opacity=0.8,
+        hovertemplate='ST: %{customdata:.1f} mg/g<extra></extra>',
         customdata=monthly_avg['ST_Value']
     ))
 
-    # N/ST Ratio (normalized) - PROMINENT
+    # N/ST Ratio (normalized) - prominent
     fig.add_trace(go.Scatter(
         x=monthly_avg['normalized_date'],
         y=monthly_avg['Ratio_norm'],
         mode='lines+markers',
-        name='N/ST Ratio',
-        line=dict(color=RATIO_COLOR, width=4),
-        marker=dict(size=9, symbol='diamond'),
-        hovertemplate='N/ST: %{customdata:.4f} (norm: %{y:.0f}%)<extra></extra>',
+        name='N/ST Ratio \u2605',
+        line=dict(color=RATIO_COLOR, width=5),
+        marker=dict(size=14, symbol='diamond', line=dict(width=2, color='white')),
+        hovertemplate='<b>N/ST: %{customdata:.4f}</b><extra></extra>',
         customdata=monthly_avg['N_ST_Ratio']
     ))
 
-    # Find peaks and troughs for annotations
-    n_peak_idx = monthly_avg['N_norm'].idxmax()
-    st_min_idx = monthly_avg['ST_norm'].idxmin()
-    ratio_peak_idx = monthly_avg['Ratio_norm'].idxmax()
+    # Find and annotate peaks with actual ratio values
+    ratio_norm = monthly_avg['Ratio_norm'].values
+    ratio_actual = monthly_avg['N_ST_Ratio'].values
+    dates = monthly_avg['normalized_date'].values
 
-    fig.add_annotation(
-        x=monthly_avg.loc[n_peak_idx, 'normalized_date'],
-        y=monthly_avg.loc[n_peak_idx, 'N_norm'],
-        text="N peaks (winter)",
-        showarrow=True, arrowhead=2, ax=0, ay=-30,
-        font=dict(size=10, color=N_COLOR)
+    for i in range(1, len(ratio_norm) - 1):
+        if ratio_norm[i] > ratio_norm[i-1] and ratio_norm[i] > ratio_norm[i+1]:
+            month_name = pd.Timestamp(dates[i]).strftime('%b')
+            fig.add_annotation(
+                x=dates[i],
+                y=ratio_norm[i],
+                text=f"<b>PEAK</b><br>{month_name}<br>N/ST={ratio_actual[i]:.3f}",
+                showarrow=True,
+                arrowhead=2,
+                arrowcolor=RATIO_COLOR,
+                font=dict(size=11, color=RATIO_COLOR),
+                bgcolor='rgba(255,255,255,0.9)',
+                bordercolor=RATIO_COLOR,
+                borderwidth=1,
+                yshift=30
+            )
+
+    fig.update_layout(
+        title=dict(
+            text="6.3 Peak Detection: When N/ST Ratio Reaches Maximum<br><sup>Red shaded = N higher than ST (normalized) | Peak annotations show actual ratio values</sup>",
+            font=dict(size=16)
+        ),
+        xaxis=dict(
+            title='Date',
+            tickformat='%b %Y',
+            dtick='M1'
+        ),
+        yaxis=dict(
+            title='Normalized Value (%)',
+            range=[-5, 130]
+        ),
+        height=550,
+        legend=dict(
+            orientation='h',
+            yanchor='top',
+            y=-0.12,
+            xanchor='center',
+            x=0.5
+        ),
+        hovermode='x unified',
+        plot_bgcolor='white',
+        margin=dict(b=100)
     )
 
-    fig.add_annotation(
-        x=monthly_avg.loc[st_min_idx, 'normalized_date'],
-        y=monthly_avg.loc[st_min_idx, 'ST_norm'],
-        text="ST drops (spring)",
-        showarrow=True, arrowhead=2, ax=0, ay=30,
-        font=dict(size=10, color=ST_COLOR)
+    return fig
+
+
+def create_ratio_focused_chart(df):
+    """Create chart focused on N/ST ratio with N and ST as context lines."""
+    monthly_avg = get_monthly_averages(df)
+
+    fig = make_subplots(specs=[[{"secondary_y": True}]])
+
+    # N/ST Ratio as main focus (left y-axis) - as area fill
+    fig.add_trace(
+        go.Scatter(
+            x=monthly_avg['normalized_date'],
+            y=monthly_avg['N_ST_Ratio'],
+            mode='lines',
+            name='N/ST Ratio',
+            line=dict(color=RATIO_COLOR, width=4),
+            fill='tozeroy',
+            fillcolor='rgba(231, 76, 60, 0.3)',
+            hovertemplate='<b>N/ST: %{y:.4f}</b><extra></extra>'
+        ),
+        secondary_y=False
     )
 
-    fig.add_annotation(
-        x=monthly_avg.loc[ratio_peak_idx, 'normalized_date'],
-        y=monthly_avg.loc[ratio_peak_idx, 'Ratio_norm'],
-        text="Ratio rises →<br>Fertilization window",
-        showarrow=True, arrowhead=2, ax=-70, ay=-20,
-        font=dict(size=10, color=RATIO_COLOR)
+    # Add peak markers
+    ratio_values = monthly_avg['N_ST_Ratio'].values
+    dates = monthly_avg['normalized_date'].values
+    peak_dates = []
+    peak_values = []
+
+    for i in range(1, len(ratio_values) - 1):
+        if ratio_values[i] > ratio_values[i-1] and ratio_values[i] > ratio_values[i+1]:
+            peak_dates.append(dates[i])
+            peak_values.append(ratio_values[i])
+
+    fig.add_trace(
+        go.Scatter(
+            x=peak_dates,
+            y=peak_values,
+            mode='markers+text',
+            name='Ratio Peaks',
+            marker=dict(size=20, color=RATIO_COLOR, symbol='star', line=dict(width=2, color='white')),
+            text=[f'{v:.3f}' for v in peak_values],
+            textposition='top center',
+            textfont=dict(size=12, color=RATIO_COLOR),
+            hovertemplate='<b>PEAK: %{y:.4f}</b><extra></extra>'
+        ),
+        secondary_y=False
+    )
+
+    # N Value (right y-axis) - subtle context
+    fig.add_trace(
+        go.Scatter(
+            x=monthly_avg['normalized_date'],
+            y=monthly_avg['N_Value'],
+            mode='lines+markers',
+            name='N Value (%)',
+            line=dict(color=N_COLOR, width=2, dash='dot'),
+            marker=dict(size=6),
+            opacity=0.6,
+            hovertemplate='N: %{y:.2f}%<extra></extra>'
+        ),
+        secondary_y=True
+    )
+
+    # ST Value (right y-axis, scaled) - subtle context
+    st_scaled = monthly_avg['ST_Value'] / 50  # Scale to fit with N%
+    fig.add_trace(
+        go.Scatter(
+            x=monthly_avg['normalized_date'],
+            y=st_scaled,
+            mode='lines+markers',
+            name='ST Value (\u00f750)',
+            line=dict(color=ST_COLOR, width=2, dash='dot'),
+            marker=dict(size=6),
+            opacity=0.6,
+            customdata=monthly_avg['ST_Value'],
+            hovertemplate='ST: %{customdata:.1f} mg/g<extra></extra>'
+        ),
+        secondary_y=True
     )
 
     fig.update_layout(
         title=dict(
-            text="Normalized View - Recent Period (Aug 2023 - Aug 2024)<br><sup>Excludes 2022 depleted year for cleaner seasonal pattern</sup>",
+            text="6.4 N/ST Ratio Focus: Peak Identification<br><sup>Area shows ratio magnitude | Stars mark local maxima | Dotted lines show N and ST context</sup>",
             font=dict(size=16)
         ),
         xaxis=dict(title='Date', tickformat='%b %Y', dtick='M1'),
-        yaxis=dict(title='Normalized Value (%)', range=[0, 105]),
         height=550,
         legend=dict(
             orientation='h',
-            yanchor='bottom',
-            y=1.02,
+            yanchor='top',
+            y=-0.12,
             xanchor='center',
             x=0.5
         ),
-        hovermode='x unified'
+        hovermode='x unified',
+        plot_bgcolor='white',
+        margin=dict(b=100)
     )
+
+    fig.update_yaxes(title_text="N/ST Ratio", secondary_y=False, color=RATIO_COLOR)
+    fig.update_yaxes(title_text="N (%) / ST (\u00f750)", secondary_y=True, color='gray')
 
     return fig
 
@@ -279,169 +629,49 @@ def create_normalized_recent_period(df):
 # =============================================================================
 
 def generate_html_report(df):
-    """Generate the complete HTML report."""
+    """Generate the complete HTML report with single visualization and detailed explanations."""
     print("Generating visualizations...")
 
-    # Create figures
-    fig_full = create_normalized_full_period(df)
-    fig_recent = create_normalized_recent_period(df)
+    # Create single normalized chart
+    fig_normalized = create_normalized_chart(df)
 
     # Convert to HTML
-    plot_full = fig_full.to_html(full_html=False, include_plotlyjs='cdn')
-    plot_recent = fig_recent.to_html(full_html=False, include_plotlyjs=False)
+    plot_normalized = fig_normalized.to_html(full_html=False, include_plotlyjs='cdn')
 
     html_content = f"""<!DOCTYPE html>
 <html>
 <head>
     <title>Visualization 6: N/ST Ratio Analysis</title>
     {HTML_STYLE}
-    <style>
-        .ratio-highlight {{
-            background: linear-gradient(135deg, #fff3e0, #ffe0b2);
-            border: 3px solid #ff8c00;
-            padding: 25px;
-            border-radius: 10px;
-            margin: 25px 0;
-        }}
-        .ratio-highlight h3 {{
-            color: #e65100;
-            margin-top: 0;
-            border: none;
-            padding-left: 0;
-        }}
-    </style>
 </head>
 <body>
-    <h1>N/ST Ratio Analysis</h1>
-    <p class="subtitle">Why the N/ST ratio outperforms nitrogen alone for fertilization timing</p>
-
-    <div class="ratio-highlight">
-        <h3>The Core Insight</h3>
-        <p style="font-size: 1.1em;">Traditional fertilization timing relies on <strong>Leaf Nitrogen Content (LNC)</strong> alone.
-        However, LNC peaks in winter when leaf growth slows - this is a <strong>concentration effect</strong>,
-        not a signal that the plant needs fertilization.</p>
-
-        <p style="font-size: 1.1em;">The <strong style="color: #ff8c00;">N/ST ratio</strong> solves this by combining:</p>
-        <ul style="font-size: 1.1em;">
-            <li><strong>N_Value:</strong> Nitrogen content - the nutrient supply</li>
-            <li><strong>ST_Value:</strong> Starch content - the energy reserves</li>
-        </ul>
-
-        <p style="font-size: 1.1em; font-weight: bold; color: #e65100;">
-        When ST drops (spring/summer growth), the ratio rises - correctly signaling fertilization need.
-        </p>
-    </div>
-
-    <h2>Normalized Comparison</h2>
-
-    <div class="methodology">
-        <h4>Why Normalize?</h4>
-        <p>N_Value (%), ST_Value (mg/g), and N/ST ratio have different units and scales.
-        Normalizing each to 0-100% allows direct comparison of <strong>timing patterns</strong>
-        rather than absolute values.</p>
-    </div>
-
-    <h3>Full Period: Aug 2022 - Aug 2024</h3>
+    <h1>N/ST Ratio: Phenology-Based Fertilization Indicator</h1>
+    <p class="subtitle">Fertilize at ratio peaks (gradient changes + &rarr; -) | Peaks = high Nitrogen relative to depleted Starch</p>
 
     <div class="analysis-section">
-        <p>All curves scaled to their min-max range. The <strong style="color: #ff8c00;">bright orange ratio line</strong>
-        shows when fertilization is needed - it rises when ST drops, regardless of what N alone suggests.</p>
-        {plot_full}
+        <div class="insight-box" style="margin-bottom: 15px; padding: 12px; background: linear-gradient(135deg, #fff3e0, #ffe0b2); border-left: 4px solid #e74c3c; border-radius: 4px;">
+            <strong style="color: #c0392b;">Why Fertilize at Peaks?</strong><br>
+            Ratio peaks indicate starch depletion relative to nitrogen - the tree is investing reserves in growth.<br>
+            Fertilizing now replenishes nutrients when uptake is most efficient.
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; font-size: 0.85em;">
+            <div style="background: rgba(135, 206, 250, 0.2); padding: 8px; border-radius: 6px; border-left: 3px solid #4682B4;">
+                <strong style="color: #4682B4;">Winter (Dec-Jan)</strong><br>
+                N &uarr; (remobilization) | ST &darr; &rarr; Ratio rises
+            </div>
+            <div style="background: rgba(255, 215, 0, 0.2); padding: 8px; border-radius: 6px; border-left: 3px solid #8B6914;">
+                <strong style="color: #8B6914;">Spring (Apr-May) - Peak</strong><br>
+                N &darr; | ST &darr;&darr; (flowering) &rarr; Highest peak
+            </div>
+            <div style="background: rgba(255, 160, 122, 0.2); padding: 8px; border-radius: 6px; border-left: 3px solid #CD5C5C;">
+                <strong style="color: #CD5C5C;">Summer (Aug)</strong><br>
+                N &uarr; (uptake) | ST low &rarr; Ratio rises
+            </div>
+        </div>
+
+        {plot_normalized}
     </div>
-
-    <h3>Recent Period: Aug 2023 - Aug 2024</h3>
-
-    <div class="analysis-section">
-        <p>Excludes the 2022 depleted year for a <strong>cleaner seasonal pattern</strong>.
-        This period shows the typical annual cycle without the anomalous starch depletion event.</p>
-        {plot_recent}
-    </div>
-
-    <div class="warning-box" style="background: #fff3cd; border-left: 4px solid #ff8c00;">
-        <h4>The Critical Difference</h4>
-        <ul>
-            <li><strong style="color: {N_COLOR};">N Peaks in Winter:</strong> Nitrogen concentration reaches maximum
-            values in Nov-Feb, but this reflects reduced leaf growth (concentration effect),
-            <strong>NOT</strong> optimal fertilization timing.</li>
-
-            <li><strong style="color: {ST_COLOR};">ST Drops in Spring/Summer:</strong> Starch reserves decline as trees
-            mobilize carbohydrates for new growth - <strong>THIS</strong> signals actual fertilization need.</li>
-
-            <li><strong style="color: {RATIO_COLOR};">N/ST Ratio Captures Both:</strong> The ratio rises when ST drops,
-            correctly identifying the spring/summer fertilization window that N alone misses.</li>
-
-            <li><strong style="color: {RATIO_COLOR};">Steady Rise = Increased Demand:</strong> A steady rise in N/ST ratio
-            highlights the increased nitrogen demand during active growth and metabolic phases -
-            this is when fertilization is most effective.</li>
-        </ul>
-    </div>
-
-    <h2>Practical Implications</h2>
-
-    <div class="analysis-section">
-        <h4>For Agronomists and Growers</h4>
-        <table class="treatment-table" style="width: 100%;">
-            <tr>
-                <th>Metric</th>
-                <th>Peak Timing</th>
-                <th>Implication for Fertilization</th>
-            </tr>
-            <tr>
-                <td style="color: {N_COLOR}; font-weight: bold;">N_Value alone</td>
-                <td>Winter (Nov-Feb)</td>
-                <td style="background: rgba(255, 230, 109, 0.3);">
-                    <strong>Misleading</strong> - High N in winter reflects concentration, not need
-                </td>
-            </tr>
-            <tr>
-                <td style="color: {ST_COLOR}; font-weight: bold;">ST_Value</td>
-                <td>Fall (Sep-Nov)</td>
-                <td>
-                    Low ST in spring signals energy mobilization for growth
-                </td>
-            </tr>
-            <tr>
-                <td style="color: {RATIO_COLOR}; font-weight: bold;">N/ST Ratio</td>
-                <td>Spring-Summer (Apr-Jul)</td>
-                <td style="background: rgba(200, 230, 201, 0.3);">
-                    <strong>Optimal</strong> - Rising ratio indicates true fertilization need
-                </td>
-            </tr>
-        </table>
-    </div>
-
-    <div class="discovery-box">
-        <h3>Summary: Research Insights</h3>
-        <ul>
-            <li><strong>Year Effect:</strong> Environmental factors (climate, water availability) dominate
-            starch reserves, often overwhelming nitrogen treatment effects</li>
-
-            <li><strong>LNC Classification:</strong> UC Davis thresholds provide reliable benchmarks for
-            nitrogen status when adjusted for seasonal patterns</li>
-
-            <li><strong>N/ST Ratio Advantage:</strong> Combining N and ST measurements reveals metabolic
-            status and provides more accurate fertilization timing signals than N alone</li>
-
-            <li><strong>Optimal Timing:</strong> The N/ST ratio correctly identifies <strong>spring/summer</strong>
-            as the optimal fertilization window, which N alone would miss</li>
-        </ul>
-    </div>
-
-    <div class="ratio-highlight">
-        <h3>Conclusion</h3>
-        <p style="font-size: 1.2em;">
-        The N/ST ratio integrates nitrogen status with metabolic context, providing a more reliable
-        indicator for fertilization timing decisions. By accounting for both the nutrient supply (N)
-        and energy reserves (ST), this ratio reveals the plant's true physiological status and
-        fertilization needs.
-        </p>
-        <p style="font-size: 1.1em; font-weight: bold; color: #e65100;">
-        This finding has practical implications for precision agriculture: spectroscopy-based N/ST ratio
-        predictions can guide site-specific fertilization timing, optimizing both yield and resource efficiency.
-        </p>
-    </div>
-
-    <p class="timestamp">Report generated: {datetime.now().strftime('%Y-%m-%d %H:%M')}</p>
 </body>
 </html>"""
 

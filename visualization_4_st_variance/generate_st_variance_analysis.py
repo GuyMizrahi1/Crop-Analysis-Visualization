@@ -49,18 +49,23 @@ def load_npk_data():
 # =============================================================================
 
 def create_monthly_variance(df):
-    """Create monthly ST variance box plots."""
+    """Create monthly ST variance violin plots."""
     fig = go.Figure()
 
     for month in range(1, 13):
         month_data = df[df['month'] == month]['ST_Value']
         if len(month_data) > 0:
-            fig.add_trace(go.Box(
+            fig.add_trace(go.Violin(
                 y=month_data,
                 name=MONTH_LABELS[month-1],
-                marker_color='#2ECC71',
+                line_color='#2ECC71',
                 fillcolor='rgba(46, 204, 113, 0.5)',
-                boxmean=True,
+                meanline_visible=True,
+                box_visible=True,
+                width=0.9,  # Make violins wider
+                points=False,  # Hide individual points for cleaner look
+                span=[0, None],  # Clip at 0 (no negative values), auto for max
+                spanmode='hard',  # Hard clip - no extrapolation beyond data range
                 hovertemplate=f'{MONTH_LABELS[month-1]}<br>ST: %{{y:.1f}} mg/g<extra></extra>'
             ))
 
@@ -76,16 +81,31 @@ def create_monthly_variance(df):
         hovertemplate='Mean ST: %{y:.1f} mg/g<extra></extra>'
     ))
 
+    # Add critical zone below 50 mg/g
+    fig.add_hrect(
+        y0=0, y1=50,
+        fillcolor='rgba(255, 100, 100, 0.15)',
+        layer='below',
+        line_width=0
+    )
+    fig.add_annotation(
+        x=2.5, y=15,  # numeric position between Mar(2) and Apr(3)
+        text="Abnormally low zone (<50 mg/g)",
+        showarrow=False,
+        font=dict(size=10, color='#c0392b')
+    )
+
     fig.update_layout(
         title=dict(
-            text="4.1 Monthly ST Value Distribution<br><sup>Notice the high variance in certain months - this led us to investigate further</sup>",
+            text="4.1 Monthly ST Distribution (Trimmed Violins)<br><sup>Bimodal patterns visible --> Variance not explained by seasonal behavior | Curve connects monthly means | June extremely low</sup>",
             font=dict(size=16)
         ),
         xaxis_title='Month',
         yaxis_title='ST Value (mg/g)',
         height=500,
         showlegend=False,
-        yaxis=dict(range=[0, 230])
+        yaxis=dict(range=[0, 230]),
+        violinmode='group'
     )
 
     return fig
@@ -116,29 +136,33 @@ def create_st_timeline_by_treatment(df):
                 hovertemplate=f'{treatment}<br>%{{x|%B %Y}}<br>ST: %{{y:.1f}} mg/g<extra></extra>'
             ))
 
-    # Add overall mean line
-    fig.add_hline(
-        y=overall_mean,
-        line_dash="solid",
-        line_color="#2980b9",
-        line_width=2,
-        annotation_text=f"Overall Mean: {overall_mean:.1f} mg/g",
-        annotation_position="bottom right"
+    # Add critical zone below 50 mg/g
+    fig.add_hrect(
+        y0=0, y1=50,
+        fillcolor='rgba(255, 100, 100, 0.2)',
+        layer='below',
+        line_width=0
+    )
+    fig.add_annotation(
+        x='2022-01-15', y=25,
+        text="Abnormally low zone (<50 mg/g)",
+        showarrow=False,
+        font=dict(size=10, color='#c0392b')
     )
 
     # Add depleted period highlight
     fig.add_vrect(
-        x0='2022-05-01', x1='2023-04-30',
-        fillcolor='rgba(173, 216, 230, 0.3)',
+        x0='2022-05-01', x1='2023-03-31',
+        fillcolor='rgba(46, 204, 113, 0.15)',
         layer='below',
         line_width=0,
-        annotation_text='Depleted Period',
+        annotation_text='May 2022 - Mar 2023: Depleted Period',
         annotation_position='top left'
     )
 
     fig.update_layout(
         title=dict(
-            text="4.2 ST Timeline by Treatment<br><sup>All 5 treatments follow the SAME pattern - the year effect dominates</sup>",
+            text="4.2 ST Timeline: Year effect dominates treatment effect<br><sup>Curves connect monthly mean values | All 5 treatments follow identical pattern | Values <50 mg/g indicate critical depletion</sup>",
             font=dict(size=16)
         ),
         xaxis_title='Date',
@@ -148,11 +172,12 @@ def create_st_timeline_by_treatment(df):
         xaxis=dict(tickformat='%b %Y', dtick='M2'),
         legend=dict(
             orientation='h',
-            yanchor='bottom',
-            y=1.02,
+            yanchor='top',
+            y=-0.15,
             xanchor='center',
             x=0.5
-        )
+        ),
+        margin=dict(b=100)
     )
 
     return fig
@@ -160,7 +185,8 @@ def create_st_timeline_by_treatment(df):
 
 def create_st_by_year(df):
     """Create ST values by treatment and year - showing year dominates."""
-    years = sorted([y for y in df['year'].unique() if y in YEAR_ORDER])
+    # Filter out 2021 (only 1 month of data)
+    years = sorted([y for y in df['year'].unique() if y in YEAR_ORDER and y >= 2022])
 
     fig = make_subplots(
         rows=1, cols=len(years),
@@ -185,7 +211,7 @@ def create_st_by_year(df):
 
     fig.update_layout(
         title=dict(
-            text="4.3 ST Values by Treatment Group and Year<br><sup>All treatments show the same pattern: LOW in 2022, RECOVERED in 2023-2024</sup>",
+            text="4.3 Treatment vs Year: Year effect explains the variance<br><sup>No significant ST difference between treatments within same year</sup>",
             font=dict(size=16)
         ),
         height=500,
@@ -260,7 +286,6 @@ def generate_html_report(df):
     fig_monthly = create_monthly_variance(df)
     fig_timeline = create_st_timeline_by_treatment(df)
     fig_by_year = create_st_by_year(df)
-    year_stats = create_year_statistics_table(df)
 
     # Convert to HTML
     plot_monthly = fig_monthly.to_html(full_html=False, include_plotlyjs='cdn')
@@ -270,109 +295,24 @@ def generate_html_report(df):
     html_content = f"""<!DOCTYPE html>
 <html>
 <head>
-    <title>Visualization 4: ST Variance Analysis</title>
+    <title>Visualization 4: Year Effect on Starch</title>
     {HTML_STYLE}
 </head>
 <body>
-    <h1>ST Variance Analysis</h1>
-    <p class="subtitle">Discovering why starch values show unexpectedly high variance</p>
-
-    <div class="intro-box" style="background: linear-gradient(135deg, #fff8e1, #ffecb3); border-color: #FFA000;">
-        <h3 style="margin-top: 0; border: none; padding-left: 0; color: #e65100;">The Problem</h3>
-        <p>While analyzing the NPK experiment data, we observed something unexpected:</p>
-        <ul>
-            <li><strong>High variance</strong> in ST values within certain months</li>
-            <li>Monthly ST averages were <strong>nearly identical</strong> across all 5 nitrogen treatments</li>
-            <li>Treatment groups showed <strong>no clear differentiation</strong> in their starch values</li>
-        </ul>
-        <p style="font-weight: bold; color: #e65100;">
-        Question: If nitrogen treatment isn't driving the ST variance, what is?
-        </p>
-    </div>
-
-    <h2>4.1 Monthly ST Variance Overview</h2>
+    <h1>Starch Variance: Inter-Annual Climate Effect Dominates Treatment Effect</h1>
+    <p class="subtitle">2022: Depleted (~50-80 mg/g) | 2023-24: Recovered (~120-160 mg/g) | N treatment effect not significant</p>
 
     <div class="analysis-section">
-        <p>The box plots below show ST value distributions for each month. Notice the substantial
-        variance in months like January, February, July, October, and November.</p>
         {plot_monthly}
-
-        <div class="key-observations">
-            <h4>Key Observations</h4>
-            <ul>
-                <li>Some months show ST ranges from 30-200 mg/g - a 6x difference!</li>
-                <li>The green line shows the monthly mean, but high variance means this is less meaningful</li>
-                <li>This variance cannot be explained by treatment differences alone</li>
-            </ul>
-        </div>
     </div>
 
-    <h2>4.2 ST Timeline by Treatment</h2>
-
     <div class="analysis-section">
-        <p>Plotting ST values over time for each treatment reveals a striking pattern:</p>
         {plot_timeline}
-
-        <div class="methodology">
-            <h4>Critical Finding</h4>
-            <p>All 5 treatment groups follow the <strong>exact same trajectory</strong>. They all:</p>
-            <ul>
-                <li>Dip during May 2022 - March 2023 (the "Depleted Period" highlighted in blue)</li>
-                <li>Recover together starting in mid-2023</li>
-                <li>Maintain similar levels through 2024</li>
-            </ul>
-            <p>This synchronized behavior across all treatments suggests an <strong>external environmental factor</strong>
-            is dominating the starch dynamics.</p>
-        </div>
     </div>
-
-    <h2>4.3 ST Values by Treatment and Year</h2>
 
     <div class="analysis-section">
-        <p>The definitive proof - comparing treatment groups within each year:</p>
         {plot_by_year}
-
-        <h4>Year-by-Year Statistics</h4>
-        {year_stats}
-        <p style="font-style: italic; color: #666;">* 2022 highlighted as the depleted year</p>
     </div>
-
-    <div class="discovery-box">
-        <h3>The Discovery: YEAR is the Dominant Factor</h3>
-        <p><strong>2022 was a "starch-depleted" year</strong> where ALL trees (regardless of nitrogen treatment)
-        showed dramatically lower ST values:</p>
-        <ul>
-            <li><strong>2022:</strong> Mean ST ~50-80 mg/g (depleted)</li>
-            <li><strong>2023:</strong> Mean ST ~120-160 mg/g (recovered)</li>
-            <li><strong>2024:</strong> Mean ST ~100-140 mg/g (stable)</li>
-        </ul>
-        <p>All 5 treatment groups followed the <em>same</em> pattern - the nitrogen treatment effect
-        is <strong>overwhelmed by the year effect</strong>.</p>
-    </div>
-
-    <div class="warning-box">
-        <h4>Implications for Analysis</h4>
-        <p>This discovery has important implications:</p>
-        <ul>
-            <li><strong>Cannot ignore year:</strong> Any model predicting ST must account for inter-annual variability</li>
-            <li><strong>Environmental factors matter:</strong> Drought, temperature, or other climate factors likely
-            caused the 2022 depletion</li>
-            <li><strong>N/ST ratio still valuable:</strong> Even though ST is affected by year, the <em>ratio</em>
-            of N to ST can still indicate relative metabolic status and fertilization needs</li>
-        </ul>
-    </div>
-
-    <div class="discovery-box" style="background: linear-gradient(135deg, #e8f5e9, #c8e6c9);">
-        <h3>Bottom Line</h3>
-        <p style="font-size: 1.2em; font-weight: bold; color: #1b5e20;">
-        Year-to-year environmental variation is the dominant factor affecting starch reserves -
-        not nitrogen treatment level.
-        </p>
-        <p>This must be accounted for in any predictive model, and it reinforces the value of the N/ST ratio
-        as a relative indicator that accounts for both nitrogen status and energy reserves.</p>
-    </div>
-
-    <p class="timestamp">Report generated: {datetime.now().strftime('%Y-%m-%d %H:%M')}</p>
 </body>
 </html>"""
 
