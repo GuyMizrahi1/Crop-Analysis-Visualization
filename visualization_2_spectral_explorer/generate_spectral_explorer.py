@@ -246,7 +246,7 @@ def create_spectral_explorer(df, wavelength_cols, wavelengths):
                         args=[{"visible": individual_visibility}]
                     ),
                     dict(
-                        label="Mean ± SD",
+                        label="Mean &plusmn; SD",
                         method="update",
                         args=[{"visible": mean_visibility}]
                     )

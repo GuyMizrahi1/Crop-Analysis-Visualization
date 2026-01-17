@@ -274,7 +274,7 @@ def create_lnc_classification_chart(df):
 
     fig.update_layout(
         title=dict(
-            text="5.2 LNC Timeline with Dynamic Thresholds: N60+ Treatments Remain in Optimum Band<br><sup>Threshold bands follow seasonal adjustment factors | N60, N100, N150 converge in green Optimum zone throughout 2 years</sup>",
+            text="5.2 LNC Timeline with Dynamic Thresholds: N60+ Treatments Remain in Optimum Band<br><sup>Curves connect monthly mean values | Threshold bands follow seasonal adjustment factors | N60, N100, N150 converge in green Optimum zone throughout 2 years</sup>",
             font=dict(size=16)
         ),
         xaxis=dict(

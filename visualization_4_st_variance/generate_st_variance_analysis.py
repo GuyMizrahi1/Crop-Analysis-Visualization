@@ -162,7 +162,7 @@ def create_st_timeline_by_treatment(df):
 
     fig.update_layout(
         title=dict(
-            text="4.2 ST Timeline: Year effect dominates treatment effect<br><sup>All 5 treatments follow identical pattern | Values <50 mg/g indicate critical depletion</sup>",
+            text="4.2 ST Timeline: Year effect dominates treatment effect<br><sup>Curves connect monthly mean values | All 5 treatments follow identical pattern | Values <50 mg/g indicate critical depletion</sup>",
             font=dict(size=16)
         ),
         xaxis_title='Date',
