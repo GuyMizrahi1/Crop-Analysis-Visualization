@@ -53,49 +53,73 @@ def load_npk_data():
 # =============================================================================
 
 def create_thresholds_table():
-    """Create UC Davis thresholds table with colors matching graph bands."""
-    # Using the same colors as LNC_BAND_COLORS for consistency
+    """Create dynamic monthly thresholds table based on UC Davis October reference."""
+    months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+              'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+    # Calculate all 4 monthly thresholds
+    monthly_deficient_low = [LNC_OCT_THRESHOLDS['deficient_low'] * LNC_MONTHLY_FACTORS[i] for i in range(1, 13)]
+    monthly_low_optimum = [LNC_OCT_THRESHOLDS['low_optimum'] * LNC_MONTHLY_FACTORS[i] for i in range(1, 13)]
+    monthly_optimum_high = [LNC_OCT_THRESHOLDS['optimum_high'] * LNC_MONTHLY_FACTORS[i] for i in range(1, 13)]
+    monthly_high_excess = [LNC_OCT_THRESHOLDS['high_excess'] * LNC_MONTHLY_FACTORS[i] for i in range(1, 13)]
+
     table_html = '''
-    <h3 style="color: #1B5E20; margin-bottom: 10px;">5.1 UC Davis LNC Thresholds</h3>
-    <p style="margin-bottom: 15px; color: #555;">UC Davis provides October reference values. We extended these with monthly seasonal adjustment factors.</p>
-    <table class="treatment-table" style="width: 80%; margin: 20px auto;">
+    <h3 style="color: #1B5E20; margin-bottom: 5px;">5.1 Dynamic Monthly LNC Thresholds<br><span style="font-size: 0.7em; font-weight: normal; color: #555;">All thresholds derived from UC Davis October reference &times; seasonal factor</span></h3>
+    <p style="margin-bottom: 15px; color: #555;">UC Davis provides October reference values for citrus LNC classification.<br>This reference adapted into <strong>dynamic monthly thresholds</strong> using seasonal adjustment factors that account for natural nitrogen fluctuations throughout the year.</p>
+    <table class="treatment-table" style="width: 100%; margin: 20px auto; font-size: 0.9em;">
         <tr>
-            <th>LNC Category</th>
-            <th>October Threshold</th>
-            <th>Description</th>
-            <th>Agronomic Implication</th>
-        </tr>
-        <tr style="background: rgba(27, 94, 32, 0.25);">
-            <td style="font-weight: bold; color: #1B5E20;">Excess</td>
-            <td>&gt; 3.48%</td>
-            <td>Excessive nitrogen</td>
-            <td>Reduce fertilization to avoid waste</td>
-        </tr>
-        <tr style="background: rgba(56, 142, 60, 0.25);">
-            <td style="font-weight: bold; color: #2E7D32;">High</td>
-            <td>3.24 - 3.48%</td>
-            <td>Above optimal</td>
-            <td>Monitor, may reduce fertilization</td>
-        </tr>
-        <tr style="background: rgba(76, 175, 80, 0.25);">
-            <td style="font-weight: bold; color: #388E3C;">Optimum</td>
-            <td>2.88 - 3.24%</td>
-            <td>Ideal range for citrus</td>
-            <td>Maintain current program</td>
-        </tr>
-        <tr style="background: rgba(129, 199, 132, 0.25);">
-            <td style="font-weight: bold; color: #4CAF50;">Low</td>
-            <td>2.64 - 2.88%</td>
-            <td>Suboptimal nitrogen levels</td>
-            <td>Consider supplemental fertilization</td>
-        </tr>
-        <tr style="background: rgba(200, 230, 201, 0.25);">
-            <td style="font-weight: bold; color: #66BB6A;">Deficient</td>
-            <td>&lt; 2.64%</td>
-            <td>Severe nitrogen deficiency</td>
-            <td>Immediate fertilization required</td>
-        </tr>
+            <th>Threshold</th>'''
+
+    for m in months:
+        is_oct = (m == 'Oct')
+        style = ' style="background: rgba(76, 175, 80, 0.2);"' if is_oct else ''
+        table_html += f'<th{style}>{m}</th>'
+    table_html += '</tr>'
+
+    # High/Excess boundary row (top - highest values)
+    table_html += '<tr><td style="font-weight: bold; color: #388E3C;">High/Excess</td>'
+    for i, val in enumerate(monthly_high_excess):
+        is_oct = (i == 9)
+        style = ' style="background: rgba(76, 175, 80, 0.2);"' if is_oct else ''
+        table_html += f'<td{style}>{val:.2f}%</td>'
+    table_html += '</tr>'
+
+    # Optimum/High boundary row
+    table_html += '<tr><td style="font-weight: bold; color: #4CAF50;">Optimum/High</td>'
+    for i, val in enumerate(monthly_optimum_high):
+        is_oct = (i == 9)
+        style = ' style="background: rgba(76, 175, 80, 0.2);"' if is_oct else ''
+        table_html += f'<td{style}>{val:.2f}%</td>'
+    table_html += '</tr>'
+
+    # Low/Optimum boundary row
+    table_html += '<tr><td style="font-weight: bold; color: #81C784;">Low/Optimum</td>'
+    for i, val in enumerate(monthly_low_optimum):
+        is_oct = (i == 9)
+        style = ' style="background: rgba(76, 175, 80, 0.2);"' if is_oct else ''
+        table_html += f'<td{style}>{val:.2f}%</td>'
+    table_html += '</tr>'
+
+    # Deficient/Low boundary row (bottom - lowest values)
+    table_html += '<tr><td style="font-weight: bold; color: #C8E6C9;">Deficient/Low</td>'
+    for i, val in enumerate(monthly_deficient_low):
+        is_oct = (i == 9)
+        style = ' style="background: rgba(76, 175, 80, 0.2);"' if is_oct else ''
+        table_html += f'<td{style}>{val:.2f}%</td>'
+    table_html += '</tr>'
+
+    # Seasonal factor row
+    table_html += '<tr style="font-size: 0.85em; color: #666;"><td>Seasonal Factor</td>'
+    for i in range(1, 13):
+        factor = LNC_MONTHLY_FACTORS[i]
+        is_oct = (i == 10)
+        style = ' style="background: rgba(76, 175, 80, 0.2);"' if is_oct else ''
+        table_html += f'<td{style}>{factor:.3f}</td>'
+    table_html += '</tr>'
+
+    table_html += '''
     </table>
+    <p style="font-size: 0.85em; color: #666; margin-top: 10px;"><em>October (highlighted) = UC Davis reference month (factor = 1.000). Other months adjusted based on seasonal nitrogen patterns in citrus leaves.</em></p>
     '''
     return table_html
 
@@ -174,7 +198,7 @@ def create_lnc_classification_chart(df):
     # Deficient band
     fig.add_trace(go.Scatter(
         x=monthly_dates, y=t1_values,
-        mode='lines', name='Deficient (< 2.64%)',
+        mode='lines', name='Deficient',
         line=dict(color=BOUNDARY_LINE_COLOR, width=LINE_WIDTH, shape=LINE_SHAPE),
         fill='tonexty', fillcolor=LNC_BAND_COLORS['Deficient'],
         hovertemplate='Deficient/Low boundary: %{y:.2f}%<extra></extra>'
@@ -183,7 +207,7 @@ def create_lnc_classification_chart(df):
     # Low band
     fig.add_trace(go.Scatter(
         x=monthly_dates, y=t2_values,
-        mode='lines', name='Low (2.64-2.88%)',
+        mode='lines', name='Low',
         line=dict(color=BOUNDARY_LINE_COLOR, width=LINE_WIDTH, shape=LINE_SHAPE),
         fill='tonexty', fillcolor=LNC_BAND_COLORS['Low'],
         hovertemplate='Low/Optimum boundary: %{y:.2f}%<extra></extra>'
@@ -192,7 +216,7 @@ def create_lnc_classification_chart(df):
     # Optimum band
     fig.add_trace(go.Scatter(
         x=monthly_dates, y=t3_values,
-        mode='lines', name='Optimum (2.88-3.24%)',
+        mode='lines', name='Optimum',
         line=dict(color=BOUNDARY_LINE_COLOR, width=LINE_WIDTH, shape=LINE_SHAPE),
         fill='tonexty', fillcolor=LNC_BAND_COLORS['Optimum'],
         hovertemplate='Optimum/High boundary: %{y:.2f}%<extra></extra>'
@@ -201,7 +225,7 @@ def create_lnc_classification_chart(df):
     # High band
     fig.add_trace(go.Scatter(
         x=monthly_dates, y=t4_values,
-        mode='lines', name='High (3.24-3.48%)',
+        mode='lines', name='High',
         line=dict(color=BOUNDARY_LINE_COLOR, width=LINE_WIDTH, shape=LINE_SHAPE),
         fill='tonexty', fillcolor=LNC_BAND_COLORS['High'],
         hovertemplate='High/Excess boundary: %{y:.2f}%<extra></extra>'
@@ -210,7 +234,7 @@ def create_lnc_classification_chart(df):
     # Excess band (ceiling)
     fig.add_trace(go.Scatter(
         x=monthly_dates, y=[4.2] * len(monthly_dates),
-        mode='lines', name='Excess (> 3.48%)',
+        mode='lines', name='Excess',
         line=dict(width=0, shape=LINE_SHAPE),
         fill='tonexty', fillcolor=LNC_BAND_COLORS['Excess'],
         showlegend=True, hoverinfo='skip'
@@ -250,7 +274,7 @@ def create_lnc_classification_chart(df):
 
     fig.update_layout(
         title=dict(
-            text="5.2 LNC Classification: N60-N150 converge in Optimum range throughout 2-year period<br><sup>Higher fertilization (N100, N150) does not elevate LNC above optimal | Diminishing returns above N60</sup>",
+            text="5.2 LNC Timeline with Dynamic Thresholds: N60+ Treatments Remain in Optimum Band<br><sup>Threshold bands follow seasonal adjustment factors | N60, N100, N150 converge in green Optimum zone throughout 2 years</sup>",
             font=dict(size=16)
         ),
         xaxis=dict(
@@ -299,8 +323,8 @@ def generate_html_report(df):
     {HTML_STYLE}
 </head>
 <body>
-    <h1>LNC Classification: All treatments above N60 follow the Optimum band in UC Davis seasonal pattern</h1>
-    <p class="subtitle">N60, N100, and N150 all cluster in Optimum range | Over-fertilizing doesn't increase leaf N% beyond optimal levels</p>
+    <h1>LNC (Leaf Nitrogen Content) Classification:<br>Dynamic Thresholds Reveal All N60+ Treatments Stay Optimum</h1>
+    <p class="subtitle">UC Davis October thresholds adapted to monthly values using seasonal adjustment factors | N60, N100, N150 all cluster in Optimum band</p>
 
     <div class="analysis-section">
         {thresholds_table}

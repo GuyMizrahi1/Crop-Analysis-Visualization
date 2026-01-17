@@ -132,16 +132,22 @@ def create_timeline_chart(df):
         xaxis_title='Collection Date',
         yaxis_title='Number of Samples',
         barmode='group',
-        xaxis=dict(tickformat='%b %Y', dtick='M3'),
+        xaxis=dict(
+            tickformat='%b %Y',
+            dtick='M3',
+            range=['2018-04-01', '2024-10-31'],
+            tickangle=-45
+        ),
         legend=dict(
             orientation='h',
-            yanchor='bottom',
-            y=1.02,
+            yanchor='top',
+            y=-0.35,
             xanchor='center',
             x=0.5,
             title='Crop Type'
         ),
         height=500,
+        margin=dict(b=150),
         hovermode='x unified'
     )
 
@@ -181,7 +187,7 @@ def create_seasonal_distribution(df):
 
     fig.update_layout(
         title=dict(
-            text="1.2 Seasonal Distribution (DOY): Aggregated by Day-of-Year to reveal seasonal patterns<br><sup>Citrus has full 12-month coverage (150+ samples/month) → Primary focus for subsequent analysis</sup>",
+            text="1.2 Seasonal Distribution (DOY): Aggregated by Day-of-Year to reveal seasonal patterns<br><sup>Citrus has full 12-month coverage (150+ samples/month) --> Primary focus for subsequent analysis</sup>",
             font=dict(size=16)
         ),
         xaxis_title='Month',
@@ -191,12 +197,13 @@ def create_seasonal_distribution(df):
         height=500,
         legend=dict(
             orientation='h',
-            yanchor='bottom',
-            y=1.02,
+            yanchor='top',
+            y=-0.35,
             xanchor='center',
             x=0.5,
             title='Crop Type'
         ),
+        margin=dict(b=150),
         hovermode='x unified'
     )
 
@@ -250,8 +257,18 @@ def create_israel_map_html(df):
     label_offsets_js = json.dumps(label_offsets)
 
     map_html = f'''
+    <style>
+        .count-label-single {{ pointer-events: none !important; }}
+        .count-label-single * {{ pointer-events: none !important; }}
+    </style>
     <div id="israel-map" style="height: 550px; width: 550px; border-radius: 8px; margin: 0;"></div>
     <div id="crop-info-panel" style="display: none; position: absolute; top: 50px; left: -320px; background: rgba(255,255,255,0.98); padding: 15px; border-radius: 8px; box-shadow: 0 2px 12px rgba(0,0,0,0.2); z-index: 1000; min-width: 200px;"></div>
+    <div style="display: flex; justify-content: center; gap: 25px; margin-top: 15px; font-size: 14px;">
+        <span><span style="display: inline-block; width: 14px; height: 14px; border-radius: 50%; background: #E69F00; margin-right: 6px; vertical-align: middle;"></span>Citrus</span>
+        <span><span style="display: inline-block; width: 14px; height: 14px; border-radius: 50%; background: #8B4513; margin-right: 6px; vertical-align: middle;"></span>Almond</span>
+        <span><span style="display: inline-block; width: 14px; height: 14px; border-radius: 50%; background: #009E73; margin-right: 6px; vertical-align: middle;"></span>Avocado</span>
+        <span><span style="display: inline-block; width: 14px; height: 14px; border-radius: 50%; background: #CC79A7; margin-right: 6px; vertical-align: middle;"></span>Vine</span>
+    </div>
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -303,7 +320,7 @@ def create_israel_map_html(df):
                             data-crop="${{crop}}" data-location="${{locName}}" class="pie-segment" style="cursor: pointer;"/>`;
                     if (showLabels) {{
                         svg += `<text x="${{cx}}" y="${{cy}}" text-anchor="middle" dominant-baseline="middle"
-                                fill="white" font-size="10" font-weight="bold" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.8); pointer-events: none;">${{count}}</text>`;
+                                fill="white" font-size="14" font-weight="bold" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.8); pointer-events: none;">${{count}}</text>`;
                     }}
                 }} else {{
                     const labelPositions = [];
@@ -337,7 +354,7 @@ def create_israel_map_html(df):
                     if (showLabels) {{
                         labelPositions.forEach(pos => {{
                             svg += `<text x="${{pos.x}}" y="${{pos.y}}" text-anchor="middle" dominant-baseline="middle"
-                                    fill="white" font-size="9" font-weight="bold" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.9); pointer-events: none;">${{pos.count}}</text>`;
+                                    fill="white" font-size="14" font-weight="bold" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.9); pointer-events: none;">${{pos.count}}</text>`;
                         }});
                     }}
                 }}
@@ -373,6 +390,15 @@ def create_israel_map_html(df):
 
             // Function to toggle location display mode
             function toggleLocationView(locName) {{
+                // Check if location has only one crop - don't toggle if so
+                const crops = cropDist[locName] || {{}};
+                const activeCrops = Object.entries(crops).filter(([crop, count]) => count > 0);
+                if (activeCrops.length <= 1) {{
+                    // Single-crop location - do nothing on text label click
+                    // (clicking on pie chart shows info panel instead)
+                    return;
+                }}
+
                 const currentState = locationStates[locName];
                 locationStates[locName] = currentState === 'total' ? 'detailed' : 'total';
                 updatePieChart(locName);
@@ -464,15 +490,33 @@ def create_israel_map_html(df):
                 }}).addTo(map);
                 pieMarkers[locName] = pieMarker;
 
+                // Add click handler to pie marker for single-crop locations
+                const activeCrops = Object.entries(crops).filter(([crop, count]) => count > 0);
+                if (activeCrops.length === 1) {{
+                    pieMarker.on('click', function(e) {{
+                        L.DomEvent.stopPropagation(e);
+                        showCropInfoPanel(activeCrops[0][0]);
+                    }});
+                }} else {{
+                    // Multi-crop locations toggle view on marker click
+                    pieMarker.on('click', function(e) {{
+                        L.DomEvent.stopPropagation(e);
+                        toggleLocationView(locName);
+                    }});
+                }}
+
                 // Count label marker
+                // For single-crop locations, use different className so CSS disables pointer-events on Leaflet wrapper
+                const countClassName = activeCrops.length === 1 ? 'count-label-single' : 'count-label';
+                const pointerStyle = activeCrops.length === 1 ? 'pointer-events: none;' : 'cursor: pointer;';
                 const countMarker = L.marker([adjustedLat, adjustedLon], {{
                     icon: L.divIcon({{
-                        className: 'count-label',
+                        className: countClassName,
                         html: `<div style="
                             color: white; font-size: 13px; font-weight: bold;
                             text-shadow: 1px 1px 3px rgba(0,0,0,0.9), -1px -1px 2px rgba(0,0,0,0.5);
                             text-align: center; width: ${{radius * 2}}px; line-height: ${{radius * 2}}px;
-                            pointer-events: none;
+                            ${{pointerStyle}}
                         ">${{total}}</div>`,
                         iconSize: [radius * 2, radius * 2],
                         iconAnchor: [radius, radius]
@@ -480,6 +524,14 @@ def create_israel_map_html(df):
                     zIndexOffset: zIndex + 10
                 }}).addTo(map);
                 countMarkers[locName] = countMarker;
+
+                // Add click handler to count marker for multi-crop locations only
+                if (activeCrops.length > 1) {{
+                    countMarker.on('click', function(e) {{
+                        L.DomEvent.stopPropagation(e);
+                        toggleLocationView(locName);
+                    }});
+                }}
 
                 // Arrow SVG
                 const arrowSvg = offset.arrow === 'left'
@@ -691,7 +743,7 @@ def generate_html_report(df):
 
     <div class="analysis-section">
         <h3 style="color: #1B5E20; margin-bottom: 5px;">1.3 Geographic Distribution: 4 Research Sites Across Israel (North to South)</h3>
-        <p style="font-size: 13px; color: #555; margin-bottom: 15px;">Pie charts show crop distribution per location. Circle size reflects total sample count. <span style="color: #888;">(Click city name to show sample counts per crop, click pie segment to see crop distribution across all sites)</span></p>
+        <p style="font-size: 13px; color: #555; margin-bottom: 15px;">Pie charts show crop distribution per location. Circle size reflects total sample count. <span style="color: #888;"><br>(Click city name to show sample counts per crop, click pie segment to see crop distribution across all sites)</span></p>
         <div style="display: flex; justify-content: center; align-items: flex-start; gap: 0; position: relative;">
             <div style="position: relative;">
                 {map_html}

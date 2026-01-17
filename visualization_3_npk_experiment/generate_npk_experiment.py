@@ -94,7 +94,7 @@ def create_treatment_table(df):
 
 
 def create_timeline_chart(df):
-    """Create sample collection timeline by treatment."""
+    """Create sample collection timeline by treatment with pastel colors and labels for non-5 counts."""
     df['year_month'] = df['parsed_date'].dt.to_period('M')
     timeline_data = df.groupby(['year_month', 'treatment']).size().reset_index(name='count')
     timeline_data['date'] = timeline_data['year_month'].dt.to_timestamp()
@@ -104,32 +104,47 @@ def create_timeline_chart(df):
     for treatment in TREATMENT_ORDER:
         treatment_data = timeline_data[timeline_data['treatment'] == treatment]
         if len(treatment_data) > 0:
+            # Create text labels: show count only if different from 5
+            text_labels = [str(c) if c != 5 else '' for c in treatment_data['count']]
+
+            # Use pastel colors (same opacity as 3.2 ridgelines)
+            pastel_color = hex_to_rgba(TREATMENT_COLORS[treatment], 0.6)
+            border_color = TREATMENT_COLORS[treatment]
+
             fig.add_trace(go.Bar(
                 x=treatment_data['date'],
                 y=treatment_data['count'],
                 name=treatment,
-                marker_color=TREATMENT_COLORS[treatment],
+                marker=dict(
+                    color=pastel_color,
+                    line=dict(color=border_color, width=1)
+                ),
+                text=text_labels,
+                textposition='inside',
+                textfont=dict(color='black', size=10, family='Arial Black'),
                 hovertemplate=f'{treatment}<br>%{{x|%B %Y}}<br>Samples: %{{y}}<extra></extra>'
             ))
 
     fig.update_layout(
         title=dict(
-            text="3.1 Sample Collection Timeline by Treatment<br><sup>Monthly sample counts for each nitrogen treatment level</sup>",
+            text="3.1 Citrus Sample Collection Timeline by Treatment<br><sup>Monthly sample counts (stacked) | Numbers shown when count \u2260 5</sup>",
             font=dict(size=16)
         ),
         xaxis_title='Collection Date',
         yaxis_title='Number of Samples',
-        barmode='group',
+        barmode='stack',
         xaxis=dict(tickformat='%b %Y', dtick='M3', range=['2021-10-01', '2024-10-31']),
         legend=dict(
             orientation='h',
-            yanchor='bottom',
-            y=1.02,
+            yanchor='top',
+            y=-0.15,
             xanchor='center',
             x=0.5,
-            title='Treatment'
+            title='Treatment (N10\u2192N150)',
+            traceorder='normal'
         ),
         height=450,
+        margin=dict(b=100),
         hovermode='x unified'
     )
 
@@ -240,6 +255,7 @@ def create_combined_scatter_ridgeline(df):
                 textfont=dict(size=11, color=color, family='Arial Black'),
                 showlegend=False,
                 visible=False,
+                legendgroup=treatment,
                 name=f'centroid_scatter_{treatment}',
                 hovertemplate=f'<b>{treatment} Centroid</b><br>N: {n_mean:.2f}%<br>ST: {st_mean:.1f} mg/g<extra></extra>'
             ),
@@ -385,7 +401,7 @@ def create_combined_scatter_ridgeline(df):
 
     fig.update_layout(
         title=dict(
-            text="3.2 Treatment Comparison: N_Value vs ST_Value with Distributions<br><sup>Scatter plot with marginal KDE distributions by treatment</sup>",
+            text="3.2 Leaf Nitrogen Content vs Starch Content by Treatment<br><sup>N_Value (%) and ST_Value (mg/g) measured from citrus leaf samples | Click ridgelines to toggle centroids</sup>",
             font=dict(size=16)
         ),
         height=650,
@@ -533,17 +549,15 @@ def generate_html_report(df):
 </head>
 <body>
     <h1>NPK Experiment: 5 Nitrogen Treatments on Citrus (Gilat Station)</h1>
-    <p class="subtitle">N10-N150 kg/ha | 5 trees per treatment | Measuring N% and Starch response</p>
+    <p class="subtitle">N10-N150 kg N/hectare | 5 trees per treatment | Measuring N% and Starch response</p>
 
     <div class="analysis-section">
+        <p style="margin-bottom: 15px; color: #555;">NPK stands for <strong>Nitrogen (N)</strong>, <strong>Phosphorus (P)</strong>, and <strong>Potassium (K)</strong> - the three primary nutrients for plant growth.<br>In this experiment, we focus on <strong>Nitrogen treatments</strong>, testing 5 different application rates.</p>
         {treatment_table}
         {plot_timeline}
     </div>
 
     <div class="analysis-section">
-        <p style="font-size: 12px; color: #666; margin-bottom: 10px; text-align: center;">
-            <em>Click on any ridge distribution to toggle its centroid (mean) on the scatter plot. Multiple centroids can be shown simultaneously.</em>
-        </p>
         {plot_combined}
     </div>
 

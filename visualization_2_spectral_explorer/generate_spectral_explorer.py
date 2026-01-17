@@ -45,6 +45,15 @@ def extract_crop_from_id(id_str):
     return None
 
 
+def hex_to_rgba(hex_color, opacity):
+    """Convert hex color to rgba string."""
+    hex_color = hex_color.lstrip('#')
+    r = int(hex_color[0:2], 16)
+    g = int(hex_color[2:4], 16)
+    b = int(hex_color[4:6], 16)
+    return f'rgba({r}, {g}, {b}, {opacity})'
+
+
 def load_spectral_data():
     """Load and prepare spectral data."""
     print("Loading spectral data...")
@@ -154,17 +163,32 @@ def create_spectral_explorer(df, wavelength_cols, wavelengths):
             ))
             mean_traces.append(len(fig.data) - 1)
 
-            # Standard deviation band - lighter fill
+            # Standard deviation band - upper and lower boundary lines with transparent fill
             upper = mean_spectra[crop] + std_spectra[crop]
             lower = mean_spectra[crop] - std_spectra[crop]
 
+            # Upper boundary line (invisible - just for fill reference)
             fig.add_trace(go.Scatter(
-                x=list(wavelengths) + list(wavelengths)[::-1],
-                y=list(upper) + list(lower)[::-1],
-                fill='toself',
-                fillcolor=CROP_COLORS[crop].replace(')', ', 0.1)').replace('rgb', 'rgba'),
-                line=dict(color='rgba(0,0,0,0)'),
-                name=f'{crop} (±1 SD)',
+                x=wavelengths,
+                y=upper,
+                mode='lines',
+                line=dict(color='rgba(0,0,0,0)', width=0),
+                legendgroup=crop,
+                showlegend=False,
+                visible=False,
+                hoverinfo='skip'
+            ))
+            mean_traces.append(len(fig.data) - 1)
+
+            # Lower boundary line with fill to upper (invisible boundary)
+            fig.add_trace(go.Scatter(
+                x=wavelengths,
+                y=lower,
+                mode='lines',
+                fill='tonexty',
+                fillcolor=hex_to_rgba(CROP_COLORS[crop], 0.2),
+                line=dict(color='rgba(0,0,0,0)', width=0),
+                name=f'{crop} (\u00b11 SD)',
                 legendgroup=crop,
                 showlegend=False,
                 visible=False,
@@ -176,15 +200,15 @@ def create_spectral_explorer(df, wavelength_cols, wavelengths):
     for crop in crops:
         if crop in individual_spectra:
             for i, spectrum in enumerate(individual_spectra[crop]):
-                # For the first sample of each crop, use a thicker line for better legend visibility
+                # All samples have same styling - no misleading "mean-like" thick line
                 is_first = (i == 0)
                 fig.add_trace(go.Scatter(
                     x=wavelengths,
                     y=spectrum,
                     mode='lines',
                     name=crop if is_first else None,
-                    line=dict(color=CROP_COLORS[crop], width=3.0 if is_first else 1.0),
-                    opacity=0.8 if is_first else 0.25,
+                    line=dict(color=CROP_COLORS[crop], width=1.0),
+                    opacity=0.3,
                     legendgroup=crop,
                     showlegend=is_first,
                     visible=True,
@@ -311,7 +335,7 @@ def generate_html_report(df, wavelength_cols, wavelengths):
     {HTML_STYLE}
 </head>
 <body>
-    <h1>NIR Spectral Signatures: Unique Fingerprint per Crop Type</h1>
+    <h1>NIR (Near Infrared) Spectral Signatures: Unique Fingerprint per Crop Type</h1>
     <p class="subtitle">{len(wavelengths):,} wavelengths (3,999-10,001 nm) | Spectral signatures enable prediction of chemical values (N%, ST, SC)</p>
 
     <div class="analysis-section">

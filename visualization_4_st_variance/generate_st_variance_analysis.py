@@ -49,18 +49,23 @@ def load_npk_data():
 # =============================================================================
 
 def create_monthly_variance(df):
-    """Create monthly ST variance box plots."""
+    """Create monthly ST variance violin plots."""
     fig = go.Figure()
 
     for month in range(1, 13):
         month_data = df[df['month'] == month]['ST_Value']
         if len(month_data) > 0:
-            fig.add_trace(go.Box(
+            fig.add_trace(go.Violin(
                 y=month_data,
                 name=MONTH_LABELS[month-1],
-                marker_color='#2ECC71',
+                line_color='#2ECC71',
                 fillcolor='rgba(46, 204, 113, 0.5)',
-                boxmean=True,
+                meanline_visible=True,
+                box_visible=True,
+                width=0.9,  # Make violins wider
+                points=False,  # Hide individual points for cleaner look
+                span=[0, None],  # Clip at 0 (no negative values), auto for max
+                spanmode='hard',  # Hard clip - no extrapolation beyond data range
                 hovertemplate=f'{MONTH_LABELS[month-1]}<br>ST: %{{y:.1f}} mg/g<extra></extra>'
             ))
 
@@ -84,7 +89,7 @@ def create_monthly_variance(df):
         line_width=0
     )
     fig.add_annotation(
-        x='Jun', y=45,
+        x=2.5, y=15,  # numeric position between Mar(2) and Apr(3)
         text="Abnormally low zone (<50 mg/g)",
         showarrow=False,
         font=dict(size=10, color='#c0392b')
@@ -92,14 +97,15 @@ def create_monthly_variance(df):
 
     fig.update_layout(
         title=dict(
-            text="4.1 Monthly ST Distribution: Low values detected (June median <50 mg/g)<br><sup>Typical ST >100 mg/g | Box plots reveal months with abnormally low starch reserves</sup>",
+            text="4.1 Monthly ST Distribution (Trimmed Violins)<br><sup>Bimodal patterns visible --> Variance not explained by seasonal behavior | Curve connects monthly means | June extremely low</sup>",
             font=dict(size=16)
         ),
         xaxis_title='Month',
         yaxis_title='ST Value (mg/g)',
         height=500,
         showlegend=False,
-        yaxis=dict(range=[0, 230])
+        yaxis=dict(range=[0, 230]),
+        violinmode='group'
     )
 
     return fig
@@ -130,16 +136,6 @@ def create_st_timeline_by_treatment(df):
                 hovertemplate=f'{treatment}<br>%{{x|%B %Y}}<br>ST: %{{y:.1f}} mg/g<extra></extra>'
             ))
 
-    # Add overall mean line
-    fig.add_hline(
-        y=overall_mean,
-        line_dash="solid",
-        line_color="#2980b9",
-        line_width=2,
-        annotation_text=f"Overall Mean: {overall_mean:.1f} mg/g",
-        annotation_position="bottom right"
-    )
-
     # Add critical zone below 50 mg/g
     fig.add_hrect(
         y0=0, y1=50,
@@ -148,19 +144,19 @@ def create_st_timeline_by_treatment(df):
         line_width=0
     )
     fig.add_annotation(
-        x='2022-07-15', y=25,
-        text="Critical low zone (<50 mg/g)",
+        x='2022-01-15', y=25,
+        text="Abnormally low zone (<50 mg/g)",
         showarrow=False,
-        font=dict(size=10, color='#c0392b', weight='bold')
+        font=dict(size=10, color='#c0392b')
     )
 
     # Add depleted period highlight
     fig.add_vrect(
-        x0='2022-05-01', x1='2023-04-30',
-        fillcolor='rgba(173, 216, 230, 0.15)',
+        x0='2022-05-01', x1='2023-03-31',
+        fillcolor='rgba(46, 204, 113, 0.15)',
         layer='below',
         line_width=0,
-        annotation_text='2022: Depleted Year',
+        annotation_text='May 2022 - Mar 2023: Depleted Period',
         annotation_position='top left'
     )
 
@@ -176,11 +172,12 @@ def create_st_timeline_by_treatment(df):
         xaxis=dict(tickformat='%b %Y', dtick='M2'),
         legend=dict(
             orientation='h',
-            yanchor='bottom',
-            y=1.02,
+            yanchor='top',
+            y=-0.15,
             xanchor='center',
             x=0.5
-        )
+        ),
+        margin=dict(b=100)
     )
 
     return fig
@@ -188,7 +185,8 @@ def create_st_timeline_by_treatment(df):
 
 def create_st_by_year(df):
     """Create ST values by treatment and year - showing year dominates."""
-    years = sorted([y for y in df['year'].unique() if y in YEAR_ORDER])
+    # Filter out 2021 (only 1 month of data)
+    years = sorted([y for y in df['year'].unique() if y in YEAR_ORDER and y >= 2022])
 
     fig = make_subplots(
         rows=1, cols=len(years),
@@ -213,7 +211,7 @@ def create_st_by_year(df):
 
     fig.update_layout(
         title=dict(
-            text="4.3 Treatment vs Year: Year effect is statistically dominant<br><sup>No significant ST difference between treatments within same year | Inter-annual variance > treatment variance</sup>",
+            text="4.3 Treatment vs Year: Year effect explains the variance<br><sup>No significant ST difference between treatments within same year</sup>",
             font=dict(size=16)
         ),
         height=500,
